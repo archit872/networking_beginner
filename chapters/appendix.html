@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Appendix — Pitfalls, Checklist & Progression</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Appendix: consolidated pitfalls, top 10 checklist for debugging, and progression map from beginner to intermediate networking." />
+  <base href="../">
+  <link rel="stylesheet" href="styles/theme.css" />
+  <script defer src="scripts/app.js"></script>
+</head>
+<body>
+  <!-- Canonical Nav -->
+  <nav class="app-nav" data-open="false">
+    <div class="wrap">
+      <div class="brand">Networking for Software Engineers</div>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="app-menu">Menu</button>
+      <div id="app-menu" class="menu toc-scroller" role="navigation" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="chapters/ch01.html">Chapters</a>
+        <a href="chapters/appendix.html" aria-current="page">Appendix</a>
+        <a href="chapters/glossary.html">Glossary</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="page-hero">
+      <span class="badge">Appendix</span>
+      <h1>Pitfalls, Checklist &amp; Progression</h1>
+      <p class="muted">Quick reference for common mistakes, a structured debugging checklist, and how to progress from beginner to intermediate networking.</p>
+    </header>
+
+    <section>
+      <h2>Top 10 Pitfalls to Avoid</h2>
+      <ol>
+        <li>Confusing <strong>IP</strong> and <strong>MAC</strong> addresses.</li>
+        <li>Omitting the <strong>default gateway</strong> for off-subnet traffic.</li>
+        <li>Over-relying on <strong>ping</strong> as proof of application health.</li>
+        <li>Misconfigured or stale <strong>DNS</strong> records.</li>
+        <li><strong>NAT</strong> conflicts between overlapping private networks.</li>
+        <li>Ignoring <strong>MTU</strong> issues and blocked <strong>ICMP</strong> for PMTUD.</li>
+        <li>Assuming firewall rules are permissive when they’re restrictive.</li>
+        <li>Binding services to <code>127.0.0.1</code> instead of <code>0.0.0.0</code>.</li>
+        <li>Skipping documentation of subnets, routes, and port usage.</li>
+        <li>Hardcoding fixes (<code>/etc/hosts</code>, “allow all” rules) instead of addressing root causes.</li>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>The Golden Debug Checklist</h2>
+      <p>Use this “golden path” when diagnosing networking problems:</p>
+      <ol>
+        <li><strong>Link:</strong> Is the interface up? Correct VLAN or Wi-Fi?</li>
+        <li><strong>IP:</strong> Correct address, mask, and gateway configured?</li>
+        <li><strong>DNS:</strong> Does name resolution return expected IPs?</li>
+        <li><strong>Routing:</strong> Does traceroute reveal path to destination?</li>
+        <li><strong>Transport:</strong> Can TCP handshake complete (SYN, SYN-ACK)?</li>
+        <li><strong>TLS:</strong> Certificates valid, SNI matches, no protocol mismatch?</li>
+        <li><strong>Application:</strong> HTTP/DNS/SMTP response as expected?</li>
+      </ol>
+      <div class="callout success"><strong>Tip:</strong> At each layer, use at least one tool (ping, nslookup, curl, Wireshark) to gather evidence before moving on.</div>
+    </section>
+
+    <section>
+      <h2>Progression Map</h2>
+      <p>Where to go after completing this beginner curriculum:</p>
+      <ul>
+        <li><strong>Beginner End Goal:</strong> Vocabulary, OSI/TCP-IP models, IP basics, diagnostic tools, build/debug small networks.</li>
+        <li><strong>Intermediate Entry Point:</strong> Practical competence in patterns (NAT, VPN, routing protocols), cloud VPC design, TLS in depth, observability tooling.</li>
+        <li><strong>Advanced Path:</strong> Internet-scale routing (BGP, anycast), optimization (QUIC, HTTP/3), advanced network security, and research-grade architectures.</li>
+      </ul>
+      <figure>
+        <img src="assets/figA-progression.svg" alt="Diagram showing beginner → intermediate → advanced progression in networking" />
+        <figcaption>Progression from foundational concepts to advanced, cloud-scale networking.</figcaption>
+      </figure>
+    </section>
+
+    <section>
+      <h2>Review Checklist Before Moving On</h2>
+      <ul>
+        <li>Can you explain the difference between <strong>TCP</strong> and <strong>UDP</strong> with real-world examples?</li>
+        <li>Can you configure IP addresses, gateways, and DNS on a small lab network?</li>
+        <li>Can you debug a failed website load with ping, traceroute, nslookup, and curl?</li>
+        <li>Have you captured packets and identified DNS, TCP, and HTTP flows?</li>
+        <li>Do you know common pitfalls (DNS misconfig, NAT overlap, MTU issues) and how to avoid them?</li>
+      </ul>
+    </section>
+
+    <div class="next-prev">
+      <a href="chapters/ch08.html" rel="prev">← Previous: Pitfalls, Best Practices & Next Steps</a>
+      <a href="chapters/glossary.html" rel="next">Next: Glossary →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    © Networking for Software Engineers (Beginner).
+  </footer>
+
+  <!-- CHECKLIST
+    - [x] theme.css+app.js loaded
+    - [x] <base> correct
+    - [x] Canonical nav verbatim
+    - [x] Pager prev/next valid (ch08 → glossary)
+    - [x] Top 10 pitfalls included
+    - [x] Debug checklist included
+    - [x] Progression map with figure
+    - [x] Review checklist included
+  -->
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Chapter 2 — Core Concepts of Computer Networking</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Bits and signals, bandwidth and latency, packets and protocols, Ethernet and Wi-Fi. Practical foundations for developers." />
+  <base href="../">
+  <link rel="stylesheet" href="styles/theme.css" />
+  <script defer src="scripts/app.js"></script>
+</head>
+<body>
+  <!-- Canonical Nav (verbatim across site) -->
+  <nav class="app-nav" data-open="false">
+    <div class="wrap">
+      <div class="brand">Networking for Software Engineers</div>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="app-menu">Menu</button>
+      <div id="app-menu" class="menu toc-scroller" role="navigation" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="chapters/ch01.html" aria-current="page">Chapters</a>
+        <a href="chapters/appendix.html">Appendix</a>
+        <a href="chapters/glossary.html">Glossary</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="page-hero">
+      <span class="badge">Chapter 2</span>
+      <h1>Core Concepts of Computer Networking</h1>
+      <p class="muted">From electrical or radio <abbr title="The physical representation of 0s and 1s as voltages, light or radio waves">signals</abbr> to application messages, learn the vocabulary that developers use to reason about networks.</p>
+    </header>
+
+    <section class="card">
+      <h2>Objectives</h2>
+      <ul>
+        <li>Build working definitions for <strong>packet</strong>, <strong>frame</strong>, <strong>protocol</strong>, <strong>bandwidth</strong>, <strong>latency</strong>, <strong>throughput</strong>, and <strong>MTU</strong>.</li>
+        <li>Understand how the <abbr title="Cables, radio, fiber: the layer that carries bits">physical layer</abbr>, <abbr title="Link-level delivery on a local segment (Ethernet/Wi-Fi)">data link layer</abbr>, and <abbr title="Logical addressing and routing (IP)">network layer</abbr> work together in practice.</li>
+        <li>Recognize the roles of Ethernet, Wi-Fi, switches, and access points in a local network.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1) Data Transmission Basics</h2>
+      <p>All networking begins with <strong>bits</strong>—zeros and ones—encoded as physical phenomena. Copper cables carry voltages, fiber carries pulses of light, and wireless uses radio waves. Devices agree on how to represent bits and when to sample them using <strong>encoding</strong> schemes and clocks. These details live at the <strong>physical layer</strong>, which answers the question: “How do we get raw bits from one device to another?”</p>
+      <p><strong>Bandwidth</strong> is the maximum rate at which data can be transferred over a link, usually measured in Mbps or Gbps. Think of it like the <em>width of a highway</em>. <strong>Latency</strong> is the time it takes a bit to travel from source to destination (or for a request to receive a response). It’s like the <em>time you spend at traffic lights</em>. A wide highway with many red lights can still feel slow; similarly, a high-bandwidth link with high latency can deliver a poor user experience.</p>
+      <p><strong>Throughput</strong> is the <em>achieved</em> data rate for an application, influenced by bandwidth, latency, protocol overhead, and losses. You can have a 1 Gbps link but see 200 Mbps throughput due to congestion, Wi-Fi retransmissions, or inefficient application behavior. Developers should measure throughput from the app’s perspective, not just rely on link specs.</p>
+
+      <figure>
+        <img src="assets/fig02-bandwidth-latency.svg" alt="Highway analogy showing bandwidth (lanes) and latency (traffic lights)" />
+        <figcaption>Bandwidth (lanes) determines how much can flow at once; latency (lights) determines how long each car waits.</figcaption>
+      </figure>
+
+      <div class="callout info">
+        <strong>Terminology tip:</strong> <abbr title="Propagation delay + transmission + queueing + processing">Latency</abbr> is multi-component. For short links, <em>processing and queueing</em> dominate; for long distances, <em>propagation</em> (speed of light in fiber) matters.
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Packets & Protocols</h2>
+      <p>Networks don’t ship infinite streams of bits; they send discrete <strong>packets</strong>. A packet contains a payload (your data) and headers (metadata like addresses and checksums). On local segments (Ethernet or Wi-Fi), we call the data unit a <strong>frame</strong>. At the Internet layer, the data unit is an <strong>IP packet</strong>. The concept is the same: add just enough information for the next hop to handle the data correctly.</p>
+      <p>Protocols are shared rules about message formats and behavior. <strong>Ethernet</strong> defines how devices share a medium; <strong>IP</strong> defines addressing and routing; <strong>TCP</strong> defines reliable delivery; <strong>HTTP</strong> defines how to exchange web resources. We often describe these as <abbr title="Each layer provides services to the layer above while hiding its own details">layers</abbr> so complexity is manageable.</p>
+      <p>A useful mental model is <em>encapsulation</em>: like nested envelopes. Your application message is placed inside a TCP segment, which is placed inside an IP packet, which is placed inside a link-layer frame. Each layer adds its own header. When the data arrives, layers remove their headers in reverse—<em>decapsulation</em>—until the app gets the original message.</p>
+
+      <div class="callout success">
+        <strong>Encapsulation analogy:</strong> A gift inside a box, inside a shipping crate, inside a container on a ship. Each container has labels meaningful to a specific handler (warehouse, shipper, customs).
+      </div>
+
+      <pre class="code" data-lang="text">
+Application Data
+└─ TCP Header + App Data  → TCP Segment
+   └─ IP Header + TCP Segment → IP Packet
+      └─ Ethernet Header/Trailer + IP Packet → Ethernet Frame
+      </pre>
+
+      <p>Two practical constraints follow from encapsulation. First, the <strong>MTU</strong> (Maximum Transmission Unit) of a link sets a hard limit on payload size for each frame; exceeding it triggers <abbr title="Breaking data into smaller packets to fit the link MTU">fragmentation</abbr> or requires the sender to use smaller packets via <abbr title="Path MTU Discovery">PMTUD</abbr>. Second, every header reduces the space available to your application—keep this in mind when adding VPNs or tunneling layers.</p>
+    </section>
+
+    <section>
+      <h2>3) Local Networks: Ethernet, Wi-Fi, Switches & APs</h2>
+      <p>In your office or home, devices connect to a <strong>Local Area Network (LAN)</strong>. On wires, <strong>Ethernet</strong> frames move between devices and network <strong>switches</strong>. In the air, <strong>Wi-Fi</strong> frames move between clients and an <strong>Access Point (AP)</strong>. Both Ethernet and Wi-Fi live at the <strong>data link layer</strong>; they deliver frames across a single broadcast domain.</p>
+      <p>Switches forward frames using <strong>MAC addresses</strong>. They learn which MAC lives on which port by observing frame sources, then build a table. An AP does something similar for wireless clients and also manages the radio aspects—modulation, channels, and retransmissions when frames are corrupted. Above this, the <strong>network layer</strong> (IP) handles addressing and routing across networks.</p>
+      <p>Wi-Fi provides mobility and convenience, but it shares spectrum with neighbors, microwaves, and Bluetooth. Interference causes frame loss, leading to <strong>retransmissions</strong> and lower throughput. Ethernet avoids most of this, offering predictable latency and high reliability—at the cost of a cable.</p>
+
+      <div class="callout warn">
+        <strong>Trade-off (Wi-Fi vs Ethernet):</strong> Choose Ethernet for latency-sensitive tasks (builds over VPN, large container pulls, video production). Choose Wi-Fi for flexibility and when cabling is impractical. Many teams mix both: APs for mobility, wired uplinks for heavy hitters.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Compare & Contrast: Ethernet vs Wi-Fi</h2>
+      <table>
+        <thead>
+          <tr><th>Aspect</th><th>Ethernet</th><th>Wi-Fi</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Medium</td><td>Copper/Fiber</td><td>Radio</td></tr>
+          <tr><td>Interference</td><td>Minimal</td><td>Common (neighbors, devices)</td></tr>
+          <tr><td>Latency/Jitter</td><td>Low, stable</td><td>Higher, variable</td></tr>
+          <tr><td>Mobility</td><td>Low</td><td>High</td></tr>
+          <tr><td>Setup</td><td>Cabling required</td><td>AP placement, channel planning</td></tr>
+          <tr><td>Typical MTU</td><td>1500 bytes (Jumbo up to 9000)</td><td>Often 1500; overhead varies with security/tunneling</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Case Study: “Why is our API fast on Ethernet but slow on Wi-Fi?”</h2>
+      <p>A dev team noticed local API tests finished in 900 ms over Ethernet but 2.8 s over Wi-Fi. Packet captures showed repeated <abbr title="Frame retransmits due to wireless errors">retransmissions</abbr> at the Wi-Fi link and occasional <abbr title="Packets arriving out of order">reordering</abbr>, which caused <strong>TCP</strong> to reduce its congestion window. Meanwhile a build agent on Ethernet kept its TCP window large, streaming responses efficiently. Changing nothing in the code, the team improved Wi-Fi by moving the AP to reduce interference and enabling 5 GHz channels. Latency dropped to 1.2 s. The lesson: <strong>transport behavior depends on lower layers</strong>; link quality directly affects application throughput.</p>
+    </section>
+
+    <section>
+      <h2>Analogy: The Nested Envelope Mailroom</h2>
+      <p>Imagine a company mailroom. A developer puts a small note (application data) into a blue inner envelope labeled for an internal courier (TCP). That inner envelope goes into a larger envelope with a street address (IP). Finally, everything goes into a shipping pouch tagged for a particular loading dock (Ethernet/Wi-Fi). Mailroom clerks care about pouch labels, the city post office cares about street addresses, and the recipient cares about the note. Each role sees <em>its</em> label and ignores the rest—just like layers.</p>
+    </section>
+
+    <section class="card">
+      <h2>Key Terms (preview)</h2>
+      <p>The following terms will appear throughout the book. Click into the <a href="chapters/glossary.html">Glossary</a> for formal definitions and examples:</p>
+      <ul>
+        <li><strong>Bandwidth</strong>, <strong>Latency</strong>, <strong>Throughput</strong>, <strong>Jitter</strong></li>
+        <li><strong>Frame</strong>, <strong>Packet</strong>, <strong>Segment</strong>, <strong>MTU</strong></li>
+        <li><strong>MAC address</strong>, <strong>IP address</strong></li>
+        <li><strong>Switch</strong>, <strong>Access Point</strong></li>
+        <li><strong>Retransmission</strong>, <strong>Fragmentation</strong></li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Developer-Facing Examples</h2>
+      <h3>Example 1: MTU and API Timeouts</h3>
+      <p>You deploy a service behind a VPN. Suddenly large POSTs fail with timeouts. A packet capture shows repeated <abbr title="ICMP Fragmentation Needed messages used by PMTUD">ICMP “frag needed”</abbr> messages being filtered. The sender never learns the true path MTU, keeps sending too-large packets with the <em>Don’t Fragment</em> bit set, and retries. Fixes include allowing ICMP type 3 code 4, lowering the interface MTU, or enabling MSS clamping on the VPN device.</p>
+
+      <h3>Example 2: Latency vs Throughput on Cloud Instances</h3>
+      <p>Two cloud VMs have 10 Gbps NICs. One shows 6 Gbps throughput for a file transfer; the other shows 800 Mbps. The culprit is a high round-trip time (RTT) because the instances are in different regions. Increasing the <abbr title="TCP send/receive buffer sizes">TCP buffers</abbr>, enabling window scaling, or moving instances into the same region can restore multi-Gbps throughput. Bandwidth alone doesn’t guarantee performance—<strong>latency and transport tuning</strong> matter.</p>
+    </section>
+
+    <section class="card">
+      <h2>Resources</h2>
+      <ul class="resource-list">
+        <li><a target="_blank" href="https://www.khanacademy.org/computing/computer-science/internet-intro">Khan Academy — Internet 101</a> — visual primers on packets, protocols, and routing.</li>
+        <li><a target="_blank" href="https://gaia.cs.umass.edu/kurose_ross/index.php">Kurose &amp; Ross — Computer Networking: A Top-Down Approach</a> — approachable chapters on layers and performance.</li>
+        <li><a target="_blank" href="https://wiki.wireshark.org/Performance">Wireshark Wiki — Performance troubleshooting</a> — practical hints on captures, MTU, and retransmissions.</li>
+      </ul>
+    </section>
+
+    <section class="card practice">
+      <h2>Practice</h2>
+      <ol>
+        <li><strong>Measure latency &amp; jitter (15 min).</strong> Use a continuous ping to a stable host for ~200 packets. <em>Success:</em> report average/95th percentile RTT and note variability patterns.</li>
+        <li><strong>Compare Wi-Fi vs Ethernet throughput (20 min).</strong> Download a large file or use a local speed test on both links. <em>Success:</em> table showing throughput and packet loss, plus a short explanation for any gap.</li>
+        <li><strong>Find your link’s MTU (10 min).</strong> Use a ping with “do not fragment” and binary-search payload size. <em>Success:</em> record discovered path MTU and one change you’d make if using a VPN/tunnel.</li>
+        <li><strong>Draw the encapsulation stack (10 min).</strong> For an HTTP request on your machine, sketch frame → packet → segment → payload. <em>Success:</em> show headers at each layer and one field you can inspect in Wireshark.</li>
+      </ol>
+      <div class="callout info">Optional tools: <code>ping</code>, <code>iperf3</code>, <code>tracert/traceroute</code>, and Wireshark/tcpdump for verification.</div>
+    </section>
+
+    <section class="card mastery">
+      <h2>Mastery Check</h2>
+      <ol>
+        <li>Define bandwidth, latency, and throughput, and explain how they interact.</li>
+        <details><summary>Answer</summary>
+          <p><strong>Bandwidth</strong> is link capacity; <strong>latency</strong> is one-way/round-trip delay; <strong>throughput</strong> is achieved data rate by an app. High bandwidth with high latency can still yield low throughput (e.g., small TCP windows, chattiness). Optimizing throughput often means reducing latency and protocol overhead, not just increasing link speed.</p>
+        </details>
+
+        <li>What is MTU and why does it matter to application developers?</li>
+        <details><summary>Answer</summary>
+          <p>MTU is the largest payload that can be carried in a single frame on a link. Oversized packets fragment or fail, hurting performance and reliability. VPNs and tunnels add headers, effectively shrinking usable MTU; apps that send large messages may need tuning (MSS, gRPC message sizes, chunking).</p>
+        </details>
+
+        <li>Differentiate frame vs packet vs segment.</li>
+        <details><summary>Answer</summary>
+          <p>A <em>frame</em> is the data-link unit (Ethernet/Wi-Fi). A <em>packet</em> is the network-layer unit (IP). A <em>segment</em> is the transport-layer unit (TCP/UDP). They stack via encapsulation.</p>
+        </details>
+
+        <li>Explain how Wi-Fi interference can reduce TCP throughput.</li>
+        <details><summary>Answer</summary>
+          <p>Interference causes corrupted frames → link-layer retransmissions → variable delay and loss. TCP interprets loss and delay as congestion, shrinking its window and sending rate, which lowers throughput.</p>
+        </details>
+
+        <li>When would you choose Ethernet over Wi-Fi for a developer workstation?</li>
+        <details><summary>Answer</summary>
+          <p>When you need low jitter and consistent throughput: large container pulls, artifact caching, CI agents, remote desktop, or real-time collaboration. Ethernet minimizes interference and offers stable MTU.</p>
+        </details>
+
+        <li>What problem does PMTUD solve?</li>
+        <details><summary>Answer</summary>
+          <p>Path MTU Discovery allows a sender to learn the smallest MTU along a path and size packets accordingly, avoiding fragmentation. It relies on ICMP messages; blocking them can break large transfers.</p>
+        </details>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Recap &amp; Next Steps</h2>
+      <p>You now have the core vocabulary to reason about networks: bits become frames; frames carry packets; packets carry segments; segments carry your app data. Performance depends on bandwidth, latency, loss, and protocol behavior. Local networks rely on Ethernet or Wi-Fi with switches and APs; the Internet layer (IP) ties them together. In the next chapter, you’ll map these ideas onto the <strong>OSI</strong> and <strong>TCP/IP</strong> models and practice translating real workflows into layers.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="chapters/ch01.html" rel="prev">← Previous: Introduction & Philosophy</a>
+      <a href="chapters/ch03.html" rel="next">Next: The OSI and TCP/IP Models →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    © Networking for Software Engineers (Beginner). Built for clarity and practice.
+  </footer>
+
+  <!-- CHECKLIST
+    - [x] theme.css+app.js loaded
+    - [x] <base> present & correct
+    - [x] Canonical nav verbatim; active link managed by app.js
+    - [x] Pager prev/next valid (ch01, ch03)
+    - [x] Sections meet depth minima: ≥1200 words, 2+ examples, 1 case study, compare/contrast, analogy
+    - [x] Resources 3–6 with rationale
+    - [x] Practice 3–5 with time & success criteria
+    - [x] Mastery 5–7 with answers
+    - [x] ≥1 figure, ≥8 key terms
+    - [x] No TODOs
+  -->
+</body>
+</html>

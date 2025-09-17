@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Chapter 4 — IP Addressing, Subnetting & Routing Basics</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Learn IPv4 and IPv6 addressing, CIDR subnetting, gateways, and the fundamentals of routing for developers." />
+  <base href="../">
+  <link rel="stylesheet" href="styles/theme.css" />
+  <script defer src="scripts/app.js"></script>
+</head>
+<body>
+  <!-- Canonical Nav (verbatim across site) -->
+  <nav class="app-nav" data-open="false">
+    <div class="wrap">
+      <div class="brand">Networking for Software Engineers</div>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="app-menu">Menu</button>
+      <div id="app-menu" class="menu toc-scroller" role="navigation" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="chapters/ch01.html" aria-current="page">Chapters</a>
+        <a href="chapters/appendix.html">Appendix</a>
+        <a href="chapters/glossary.html">Glossary</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="page-hero">
+      <span class="badge">Chapter 4</span>
+      <h1>IP Addressing, Subnetting & Routing Basics</h1>
+      <p class="muted">Every packet needs an address and a path. This chapter gives you practical fluency with IPv4/IPv6, <abbr title="Classless Inter-Domain Routing">CIDR</abbr> subnetting, default gateways, and hop-by-hop routing.</p>
+    </header>
+
+    <section class="card">
+      <h2>Objectives</h2>
+      <ul>
+        <li>Understand the structure of <strong>IPv4</strong> and where <strong>IPv6</strong> changes the model.</li>
+        <li>Perform <strong>CIDR</strong> subnetting by hand and verify with tools.</li>
+        <li>Explain <strong>default gateways</strong>, <strong>routing tables</strong>, and how packets move across networks.</li>
+        <li>Diagnose common addressing and gateway mistakes in development environments.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1) IP Addressing</h2>
+      <p><strong>IP addresses</strong> are logical identifiers that let the Internet layer deliver packets beyond a single link. In <strong>IPv4</strong>, an address is 32 bits (e.g., <code>192.168.1.10</code>). In <strong>IPv6</strong>, it’s 128 bits (e.g., <code>2001:db8::42</code>). An address is interpreted alongside a <strong>prefix</strong> (like <code>/24</code> or <code>/64</code>), which says how many leading bits define the <em>network</em> portion versus the <em>host</em> portion.</p>
+      <p>We often write IPv4 addresses in dotted decimal. The prefix is written using <abbr title="CIDR eliminates rigid classes and uses variable-length prefixes">CIDR</abbr>, e.g., <code>10.0.5.7/24</code>. This reads: “The first 24 bits (three octets) are the network; the last 8 bits identify the host.” In IPv6, you’ll see hex and <em>compression</em> rules (<code>::</code> to collapse runs of zeros), with typical LAN prefixes like <code>/64</code>.</p>
+
+      <div class="callout info">
+        <strong>Private address ranges (IPv4):</strong> <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>, <code>192.168.0.0/16</code>. These are non-routable on the public Internet and are commonly used behind <abbr title="Network Address Translation—many private hosts share a public address">NAT</abbr>.
+      </div>
+
+      <figure>
+        <img src="assets/fig04-ipv4-structure.svg" alt="Visual breakdown of an IPv4 address into network and host bits based on prefix" />
+        <figcaption>IPv4: bits at the front form the network prefix; remaining bits identify hosts on that network.</figcaption>
+      </figure>
+
+      <p><strong>IPv6</strong> reduces the need for NAT and brings cleaner autoconfiguration. You’ll encounter <abbr title="Stateless Address Autoconfiguration">SLAAC</abbr>, <abbr title="Neighbor Discovery Protocol">NDP</abbr>, and routable <code>/64</code> subnets on LANs. For developers, the biggest immediate wins are abundant address space and simpler overlay designs when dual-stack is available.</p>
+    </section>
+
+    <section>
+      <h2>2) Subnetting Simplified (CIDR)</h2>
+      <p><strong>Subnetting</strong> splits a network into smaller networks. Why do this? To isolate broadcast domains, enforce security boundaries, scale address management, or align addressing with teams/environments (dev, staging, prod). The math is binary, but there’s a dependable workflow you can do on a whiteboard.</p>
+
+      <h3>Workflow: From Prefix to Range</h3>
+      <ol>
+        <li>Convert the prefix to a <strong>netmask</strong>. Example: <code>/26</code> → <code>255.255.255.192</code>.</li>
+        <li>Compute the <strong>block size</strong> from the last non-255 octet: <code>256 - 192 = 64</code>. So subnets increment by 64 in that octet: <code>0, 64, 128, 192</code>.</li>
+        <li>Find the <strong>network</strong> by rounding the host octet down to the nearest multiple of 64. If the IP is <code>10.0.5.77</code>, the 4th octet is 77 → nearest lower multiple is 64 → network is <code>10.0.5.64/26</code>.</li>
+        <li>Compute the <strong>broadcast</strong> address: network + 63 → <code>10.0.5.127</code>.</li>
+        <li>Compute the <strong>usable host range</strong>: <code>10.0.5.65</code>–<code>10.0.5.126</code> (if your environment reserves network/broadcast; some point-to-point links may use all addresses).</li>
+      </ol>
+
+      <div class="card">
+        <h3>Worked Example A — “/24 split into four subnets”</h3>
+        <p>Given <code>192.168.20.0/24</code>, make four equal subnets.</p>
+        <ul>
+          <li>Four subnets require +2 bits (2² = 4) → new prefix <code>/26</code> (because 24+2).</li>
+          <li>Ranges: <code>192.168.20.0–63</code>, <code>64–127</code>, <code>128–191</code>, <code>192–255</code>.</li>
+          <li>Subnets: <code>192.168.20.0/26</code>, <code>192.168.20.64/26</code>, <code>192.168.20.128/26</code>, <code>192.168.20.192/26</code>.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Worked Example B — “Find the /27 containing 10.3.14.95”</h3>
+        <ul>
+          <li><code>/27</code> mask = <code>255.255.255.224</code> → block size = <code>256–224=32</code>.</li>
+          <li>4th octet buckets: 0, 32, 64, 96, 128, 160, 192, 224.</li>
+          <li>95 rounds down to 64 → network <code>10.3.14.64/27</code>; broadcast <code>10.3.14.95</code>; usable <code>10.3.14.65–94</code>.</li>
+        </ul>
+      </div>
+
+      <div class="callout warn">
+        <strong>Pitfall:</strong> Confusing <em>mask</em> with <em>gateway</em>. The netmask (<code>/27</code>) defines membership in a subnet. The default gateway is a specific IP (e.g., <code>10.3.14.65</code>) that routes traffic <em>off</em> the subnet.
+      </div>
+
+      <h3>IPv6 Subnetting in Brief</h3>
+      <p>Operationally, LANs use <code>/64</code>. Subnetting is then choosing different <code>/64</code> prefixes (e.g., <code>2001:db8:1::/64</code>, <code>2001:db8:2::/64</code>). Host IDs are 64 bits, often formed from interface identifiers or randomization. Unlike IPv4, you rarely carve tiny host subnets—there are plenty of addresses.</p>
+    </section>
+
+    <section>
+      <h2>3) Routing Fundamentals</h2>
+      <p><strong>Routing</strong> is how packets find a path between networks. Each host has a <strong>routing table</strong>: a set of rules mapping prefixes to <strong>next hops</strong>. The most specific matching prefix wins (<em>longest-prefix match</em>). If no specific route matches, the packet uses the <strong>default route</strong> (typically your <strong>default gateway</strong>).</p>
+
+      <pre class="code" data-lang="shell">
+# Example: laptop routing table (simplified)
+Destination        Gateway        Iface
+0.0.0.0/0          192.168.1.1    wlan0   # default via home router
+10.0.0.0/8         10.23.0.1      tun0    # VPN to corp network
+192.168.1.0/24     0.0.0.0        wlan0   # local LAN is directly connected
+      </pre>
+
+      <p>Routers connect multiple networks and forward packets between them. A home router often has one <abbr title="Local Area Network">LAN</abbr> (e.g., <code>192.168.1.0/24</code>) and one <abbr title="Wide Area Network (uplink to ISP)">WAN</abbr> interface (public IP). It <abbr title="Network Address Translation">NATs</abbr> private addresses to the public address for outbound connections and maintains a <abbr title="State table mapping internal flows to external ports">state table</abbr> to demultiplex replies.</p>
+
+      <div class="callout success">
+        <strong>Analogy:</strong> Think of a building with internal room numbers (<em>subnets</em>) and a reception desk (<em>router</em>). Mail for other buildings goes to reception (the <em>default gateway</em>) which forwards it to the city’s postal network (<em>upstream router</em>).
+      </div>
+
+      <h3>Static vs Dynamic Routing</h3>
+      <p><strong>Static routes</strong> are manually configured—great for labs or simple hub-and-spoke. <strong>Dynamic routing protocols</strong> like <abbr title="Routing Information Protocol">RIP</abbr>, <abbr title="Open Shortest Path First">OSPF</abbr>, and <abbr title="Border Gateway Protocol">BGP</abbr> let routers exchange reachability, automatically building tables that adapt to failures. As a developer, you rarely configure OSPF/BGP, but knowing they exist helps interpret traceroutes and cloud routing logs.</p>
+
+      <div class="card">
+        <h3>Compare &amp; Contrast: Static vs Dynamic</h3>
+        <table>
+          <thead><tr><th>Aspect</th><th>Static</th><th>Dynamic</th></tr></thead>
+          <tbody>
+            <tr><td>Setup</td><td>Manual, simple</td><td>Automated, needs protocol config</td></tr>
+            <tr><td>Scale</td><td>Small environments</td><td>Medium to Internet-scale</td></tr>
+            <tr><td>Convergence</td><td>No auto-failover</td><td>Auto recalculation on failures</td></tr>
+            <tr><td>Risk</td><td>Typos break reachability</td><td>Protocol bugs/misconfig can leak routes</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Developer-Facing Examples</h2>
+      <h3>Example 1 — “Why can’t my container reach the Internet?”</h3>
+      <p>You run a container with <code>--network=bridge</code>. Inside, <code>ip route</code> shows <code>0.0.0.0/0 via 172.17.0.1</code>. If the host lacks a default route or proper NAT/forwarding, the container can’t exit. Fix by ensuring the host’s default route is correct and that iptables/forwarding rules are intact. Moral: containers have their own subnets and gateways; failures often trace back to the host’s routing/NAT.</p>
+
+      <h3>Example 2 — Split Tunnel VPN &amp; “Why does only the intranet work?”</h3>
+      <p>After connecting to VPN, public sites time out while intranet works. <code>route -n</code> reveals a default route still pointing to Wi-Fi and a <code>10.0.0.0/8</code> route pointing to the VPN. DNS resolves public domains to public IPs, which go out Wi-Fi—fine. But replies return to the VPN interface due to policy, breaking symmetry. Solution: either send default via VPN or ensure policy routing matches return path. Key lesson: <strong>asymmetric routing</strong> breaks stateful devices and confuses troubleshooting.</p>
+    </section>
+
+    <section class="card">
+      <h2>Case Study — “The Missing Default Gateway”</h2>
+      <p>An engineering lab created a new VLAN <code>10.40.12.0/24</code> for staging. Servers received static IPs like <code>10.40.12.20/24</code> but no <strong>default gateway</strong>. Local services seemed up, but outbound package installs and API calls failed. A packet capture showed ARP lookups for external IPs—proof that the host thought everything was on-link. After adding the gateway <code>10.40.12.1</code> on each server and a route on the core router, outbound traffic flowed instantly. The postmortem emphasized a checklist: IP, mask/prefix, gateway, DNS.</p>
+    </section>
+
+    <section>
+      <h2>Trade-off: NAT Convenience vs End-to-End Reachability</h2>
+      <div class="callout warn">
+        <p><strong>NAT</strong> simplifies address reuse but breaks the original <em>end-to-end</em> model. It complicates peer-to-peer, VoIP, and inbound testing without port-forwarding or relays. <strong>IPv6</strong> reduces the need for NAT, enabling simpler models—but dual-stack ops and firewalls still require care. For small teams, NAT is pragmatic; for complex systems, it can be a source of subtle bugs (e.g., mismatched IPs in app-layer redirects).</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Figure: Putting It All Together</h2>
+      <figure>
+        <img src="assets/fig04-routing-path.svg" alt="Client subnet to gateway to ISP to origin, showing prefixes and next hops" />
+        <figcaption>A client on <code>192.168.1.0/24</code> sends to <code>203.0.113.80</code>: the host sees no specific route → uses default gateway <code>192.168.1.1</code> → ISP → origin network. Return traffic follows reverse routes.</figcaption>
+      </figure>
+    </section>
+
+    <section class="card">
+      <h2>Resources</h2>
+      <ul class="resource-list">
+        <li><a target="_blank" href="https://www.practicalnetworking.net/series/subnetting/">Practical Networking — Subnetting Series</a> — progressive lessons and practice problems.</li>
+        <li><a target="_blank" href="https://www.youtube.com/watch?v=Q3JG9o5JvQE">IP Addressing &amp; Subnetting Made Easy (video)</a> — step-by-step CIDR breakdowns.</li>
+        <li><a target="_blank" href="https://www.rfc-editor.org/rfc/rfc791">RFC 791 — Internet Protocol (IPv4)</a> &amp; <a target="_blank" href="https://www.rfc-editor.org/rfc/rfc8200">RFC 8200 — IPv6</a> — the source specifications.</li>
+      </ul>
+    </section>
+
+    <section class="card practice">
+      <h2>Practice</h2>
+      <ol>
+        <li><strong>Identify your home IP &amp; gateway (10 min).</strong> Record your host’s IPv4/IPv6 addresses, prefix lengths, and default gateways. <em>Success:</em> screenshot or pasted output of <code>ip addr</code>/<code>ip route</code> (or OS equivalents) with a one-sentence interpretation.</li>
+        <li><strong>Subnet a /24 into eight /27s (15 min).</strong> List the network IDs and usable ranges. <em>Success:</em> eight networks with correct broadcast/host spans.</li>
+        <li><strong>Trace a path (10 min).</strong> Run <code>traceroute</code>/<code>tracert</code> to a public site. Mark which hop is your gateway, ISP edge, and beyond. <em>Success:</em> annotated hop list with at least two insights.</li>
+        <li><strong>VPN route check (10 min).</strong> Connect to your VPN and capture <code>ip route</code> before/after. <em>Success:</em> explain whether it’s split or full tunnel and how you know.</li>
+      </ol>
+    </section>
+
+    <section class="card mastery">
+      <h2>Mastery Check</h2>
+      <ol>
+        <li>Explain the difference between <em>prefix length</em> and <em>default gateway</em>.</li>
+        <details><summary>Answer</summary><p>The prefix length (e.g., <code>/24</code>) defines which addresses are on the local subnet; the default gateway is the router IP used to reach <em>non-local</em> destinations.</p></details>
+
+        <li>Given <code>10.7.5.130/25</code>, what are the network, broadcast, and usable range?</li>
+        <details><summary>Answer</summary><p><code>/25</code> → mask <code>255.255.255.128</code>, block size 128 → networks at .0 and .128. 130 is in <code>10.7.5.128/25</code>. Broadcast <code>10.7.5.255</code>. Usable <code>10.7.5.129–254</code>.</p></details>
+
+        <li>What’s one operational advantage of IPv6 over IPv4 for app developers?</li>
+        <details><summary>Answer</summary><p>Abundant addresses reduce NAT complexity, making peer-to-peer, end-to-end telemetry, and service-to-service connectivity simpler (with proper firewalling).</p></details>
+
+        <li>How does <em>longest-prefix match</em> influence routing?</li>
+        <details><summary>Answer</summary><p>Routers choose the most specific route whose prefix matches the destination (e.g., a <code>/24</code> overrides a <code>/16</code>), enabling precise traffic steering.</p></details>
+
+        <li>Why can asymmetric routing break stateful firewalls/NAT?</li>
+        <details><summary>Answer</summary><p>They expect both directions of a flow to pass through the same device to match connection state. If return traffic takes a different path, the device drops packets as “unsolicited.”</p></details>
+
+        <li>Describe a symptom of a missing default gateway on a host.</li>
+        <details><summary>Answer</summary><p>Local LAN access works, but anything off-subnet fails. You’ll see ARP for public IPs or “Network unreachable” errors; traceroute doesn’t leave the first hop.</p></details>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Recap &amp; Next Steps</h2>
+      <p>You learned how IPv4/IPv6 addresses work, how to carve networks with CIDR, and how routing tables and gateways move packets between networks. With this foundation, you can read and reason about routes, diagnose common lab and VPN issues, and design subnets that scale. Next up: we’ll explore <strong>transport &amp; application protocols</strong>—TCP vs UDP, and how HTTP, DNS, and email ride on top.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="chapters/ch03.html" rel="prev">← Previous: OSI &amp; TCP/IP Models</a>
+      <a href="chapters/ch05.html" rel="next">Next: Transport &amp; Application Protocols →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    © Networking for Software Engineers (Beginner). Built for clarity and practice.
+  </footer>
+
+  <!-- CHECKLIST
+    - [x] theme.css+app.js loaded
+    - [x] <base> present & correct
+    - [x] Canonical nav verbatim; active handled by app.js
+    - [x] Pager prev/next valid (ch03, ch05)
+    - [x] Depth minima: ≥1200 words; 2+ examples; 1 case study; 1 compare/contrast; 1 analogy; ≥1 figure
+    - [x] Resources 3–6 with rationale
+    - [x] Practice 3–5 with time & success criteria
+    - [x] Mastery 5–7 with answers
+    - [x] ≥8 terms (IPv4, IPv6, CIDR, prefix, gateway, NAT, route, longest-prefix)
+    - [x] No TODOs
+  -->
+</body>
+</html>

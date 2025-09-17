@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Chapter 6 — Networking Tools & Workflows for Developers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Hands-on with ping, traceroute, nslookup/dig, curl; Wireshark/tcpdump; and practical debugging workflows for APIs, localhost, and ports." />
+  <base href="../">
+  <link rel="stylesheet" href="styles/theme.css" />
+  <script defer src="scripts/app.js"></script>
+</head>
+<body>
+  <!-- Canonical Nav (verbatim across site) -->
+  <nav class="app-nav" data-open="false">
+    <div class="wrap">
+      <div class="brand">Networking for Software Engineers</div>
+      <button class="nav-toggle" aria-expanded="false" aria-controls="app-menu">Menu</button>
+      <div id="app-menu" class="menu toc-scroller" role="navigation" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="chapters/ch01.html" aria-current="page">Chapters</a>
+        <a href="chapters/appendix.html">Appendix</a>
+        <a href="chapters/glossary.html">Glossary</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <header class="page-hero">
+      <span class="badge">Chapter 6</span>
+      <h1>Networking Tools & Workflows for Developers</h1>
+      <p class="muted">Turn theory into practice: measure <strong>latency</strong>, follow routes, resolve <strong>DNS</strong>, test <strong>HTTP</strong>, capture packets, and debug systematically—from laptop to cloud.</p>
+    </header>
+
+    <section class="card">
+      <h2>Objectives</h2>
+      <ul>
+        <li>Use <strong>ping</strong>, <strong>traceroute/tracert</strong>, <strong>nslookup/dig</strong>, and <strong>curl</strong> to isolate failures.</li>
+        <li>Capture and read packets with <strong>Wireshark</strong> or <strong>tcpdump</strong>, identifying <strong>SYN</strong>/<strong>ACK</strong>, <strong>DNS</strong> responses, and <strong>HTTP</strong> exchanges.</li>
+        <li>Apply stepwise workflows to debug “site won’t load,” “API 502,” and “localhost/port conflicts.”</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>1) CLI Tools</h2>
+      <p>Command-line tools give rapid, low-overhead insight. They map neatly to layers: <strong>ping</strong> (ICMP reachability), <strong>traceroute</strong> (path discovery via TTL), <strong>nslookup/dig</strong> (name resolution), and <strong>curl</strong> (application-layer HTTP/HTTPS). Mastering their options lets you quickly prove whether a problem is <em>connectivity</em>, <em>name resolution</em>, <em>routing</em>, or <em>application</em>.</p>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>ping</h3>
+          <p>Sends ICMP Echo to measure <strong>RTT</strong> and loss. If ping fails but TCP works, ICMP may be blocked. Use count/interval options to collect statistics.</p>
+          <pre class="code" data-lang="shell"># Linux/macOS
+ping -c 10 example.com
+# Windows
+ping -n 10 example.com</pre>
+        </div>
+        <div class="card">
+          <h3>traceroute / tracert</h3>
+          <p>Increments <strong>TTL</strong> to reveal hops and where packets stall. Useful for asymmetric paths and <strong>NAT</strong>/VPN surprises.</p>
+          <pre class="code" data-lang="shell"># Linux/macOS
+traceroute example.com
+# Windows
+tracert example.com</pre>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <h3>nslookup / dig</h3>
+          <p>Queries <strong>DNS</strong> for A/AAAA/CNAME/TXT/etc. Always note which <em>resolver</em> answered—your OS cache, a corporate resolver, or a public one.</p>
+          <pre class="code" data-lang="shell"># Quick
+nslookup www.example.com
+# Detailed
+dig +nocmd www.example.com any +noall +answer</pre>
+        </div>
+        <div class="card">
+          <h3>curl</h3>
+          <p>Exercises <strong>HTTP</strong>/TLS endpoints. Add <code>-v</code> for headers and TLS info; <code>-I</code> for HEAD; <code>--http2</code> to test protocol negotiation; <code>--resolve</code> to override DNS.</p>
+          <pre class="code" data-lang="shell">curl -v https://api.example.com/health
+curl -I --http2 https://www.example.com
+curl --resolve www.example.com:443:203.0.113.20 https://www.example.com</pre>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <strong>Tip:</strong> Log commands and outputs in tickets. Clear evidence (“DNS returns 198.51.100.42; TCP SYN reaches server; TLS fails with SNI mismatch”) accelerates handoffs.
+      </div>
+    </section>
+
+    <section>
+      <h2>2) Packet Capture</h2>
+      <p>When symptoms aren’t obvious, capture traffic. <strong>Wireshark</strong> (GUI) and <strong>tcpdump</strong> (CLI) expose frames, packets, and segments to verify your mental model. Start with small, targeted filters, reproduce the issue once, then stop.</p>
+
+      <div class="grid-2">
+        <div>
+          <h3>Wireshark basics</h3>
+          <ul>
+            <li>Capture on the right interface (Wi-Fi vs Ethernet vs VPN).</li>
+            <li>Use display filters: <code>dns</code>, <code>tcp.port == 443</code>, <code>ip.addr == 203.0.113.5</code>.</li>
+            <li>Follow streams (TCP/HTTP) to see request/response sequences and <strong>TLS</strong> handshakes (SNI, versions).</li>
+          </ul>
+        </div>
+        <div>
+          <h3>tcpdump patterns</h3>
+          <pre class="code" data-lang="shell"># Capture DNS queries & answers
+sudo tcpdump -i any port 53 -vv
+
+# Capture a single host's HTTPS
+sudo tcpdump -i eth0 host 203.0.113.5 and port 443 -w ssl.pcap
+
+# Quick peek without writing a file
+sudo tcpdump -ni any 'tcp[tcpflags] & (tcp-syn|tcp-ack) != 0'</pre>
+        </div>
+      </div>
+
+      <figure>
+        <img src="assets/fig06-wireshark-triple.svg" alt="Wireshark screenshot concept: DNS query, TCP 3-way handshake, HTTP response headers" />
+        <figcaption>Typical capture: (1) DNS lookup, (2) TCP three-way handshake, (3) HTTP request/response. Spot where the sequence breaks.</figcaption>
+      </figure>
+
+      <div class="callout warn">
+        <strong>Privacy & Safety:</strong> Captures may include credentials or PII. Use test accounts, restrict scope, store PCAPs securely, and obtain consent when capturing beyond your own host.
+      </div>
+    </section>
+
+    <section>
+      <h2>3) Developer Workflows</h2>
+      <p>A good workflow is a <em>checklist</em> you can run even under pressure. Move layer by layer, caching what you’ve proven so you don’t repeat work.</p>
+
+      <h3>Workflow A — “Website won’t load”</h3>
+      <ol>
+        <li><strong>Layer 3 reachability:</strong> <code>ping</code> site IP or a stable host. If loss/timeout, check Wi-Fi/Ethernet, VPN, or default <strong>gateway</strong>.</li>
+        <li><strong>DNS:</strong> <code>nslookup</code> domain. Compare corporate vs public resolver answers. Look for stale <strong>CNAME</strong>, wrong <strong>AAAA</strong>.</li>
+        <li><strong>Routing:</strong> <code>traceroute</code> to IP. Identify last responding hop. VPN split-tunnel issues often show here.</li>
+        <li><strong>HTTP/TLS:</strong> <code>curl -v</code>. Watch <strong>SNI</strong>, certificate CN/SAN, redirects, and <strong>HTTP</strong> status (301/302/403/5xx).</li>
+        <li><strong>Capture if needed:</strong> confirm SYN/SYN-ACK or TLS alerts.</li>
+      </ol>
+
+      <h3>Workflow B — “API 502/504”</h3>
+      <ol>
+        <li><strong>App vs network:</strong> <code>curl -v</code> the upstream directly (bypass proxy). If direct OK but through gateway fails, focus on gateway/proxy.</li>
+        <li><strong>DNS pinning:</strong> <code>curl --resolve</code> to force IP to rule out bad DNS.</li>
+        <li><strong>Timeout source:</strong> check reverse proxy logs and upstream <strong>health checks</strong>.</li>
+        <li><strong>Capture:</strong> look for repeated <strong>RST</strong>, window exhaustion, or TLS protocol mismatch.</li>
+      </ol>
+
+      <h3>Workflow C — “Localhost & Ports”</h3>
+      <ol>
+        <li><strong>Listen check:</strong> <code>netstat -an</code> / <code>ss -ltnp</code> / <code>Get-NetTCPConnection</code> → verify the port and interface (<code>127.0.0.1</code> vs <code>0.0.0.0</code>).</li>
+        <li><strong>Conflict:</strong> find the process bound to the port. Change port or kill the conflict.</li>
+        <li><strong>Firewall:</strong> ensure local rules allow inbound on that port (for non-localhost binds).</li>
+        <li><strong>Container nuance:</strong> map container port to host (<code>-p 8080:80</code>), and curl the host port.</li>
+      </ol>
+
+      <div class="callout success">
+        <strong>Analogy:</strong> Treat each layer like a locked door in a corridor. You can’t blame the last door (application) if the first door (link or DNS) is still locked. Try each handle in order.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Compare &amp; Contrast: Curl vs Browser DevTools</h2>
+      <table>
+        <thead><tr><th>Aspect</th><th>curl</th><th>Browser DevTools</th></tr></thead>
+        <tbody>
+          <tr><td>Reproducibility</td><td>Easy to script &amp; paste</td><td>Great for interactive inspection</td></tr>
+          <tr><td>TLS visibility</td><td>Shows handshake, ALPN, cert chain (with <code>-v</code>)</td><td>Shows security tab, mixed content warnings</td></tr>
+          <tr><td>Cookies/CORS</td><td>Manual headers required</td><td>Automatic, realistic session behavior</td></tr>
+          <tr><td>Performance</td><td>Single request timing</td><td>Waterfall, H2 multiplexing, cache details</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Case Study — “The Phantom Outage at 9:05”</h2>
+      <p>Every morning at 9:05, an internal dashboard showed errors. Ping to the server IP was fine. <code>curl -v</code> revealed a long TLS handshake followed by a 200 OK—when it worked. On failures, packet capture showed repeated <strong>ClientHello</strong> with <strong>SNI</strong> for <code>dashboard.corp</code>, but the load balancer occasionally routed to a legacy pool with an old certificate. <strong>nslookup</strong> revealed round-robin <strong>A</strong> records; one IP belonged to the legacy pool. Fix: remove the stale IP from DNS and align certificates. The workflow pinned the failure to name resolution + LB target rather than network reachability.</p>
+    </section>
+
+    <section>
+      <h2>Trade-off: Depth of Capture vs Speed of Diagnosis</h2>
+      <div class="callout warn">
+        <p>Capturing everything (<em>deep PCAPs</em>) can find rare bugs, but creates noise, privacy risk, and analysis debt. Minimal <em>symptom-focused</em> captures speed triage. Balance depends on context: production incidents demand speed; long-standing flakiness may justify deeper captures and ring buffers.</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Resources</h2>
+      <ul class="resource-list">
+        <li><a target="_blank" href="https://www.wireshark.org/docs/">Wireshark Docs</a> — filters, TLS analysis, “Follow TCP Stream.”</li>
+        <li><a target="_blank" href="https://everything.curl.dev/">Everything curl</a> — comprehensive guide to curl usage and internals.</li>
+        <li><a target="_blank" href="https://dns.google/resolve">DNS over HTTPS playground</a> — test queries and inspect JSON answers.</li>
+        <li><a target="_blank" href="https://iperf.fr/">iPerf3</a> — measure throughput; compare Wi-Fi vs Ethernet and verify <strong>MTU</strong> effects.</li>
+      </ul>
+    </section>
+
+    <section class="card practice">
+      <h2>Practice</h2>
+      <ol>
+        <li><strong>Ping &amp; jitter profile (15 min).</strong> Run a 100-packet ping to a stable host. <em>Success:</em> report avg/95th RTT and loss, plus one hypothesis for spikes.</li>
+        <li><strong>DNS split test (15 min).</strong> Query a domain using your default resolver and a public resolver. <em>Success:</em> compare answers and TTL; explain differences.</li>
+        <li><strong>HTTP trace (20 min).</strong> Use <code>curl -v</code> on a failing or test endpoint, capturing with Wireshark. <em>Success:</em> identify handshake, request, status, and one header affecting behavior (e.g., <code>Cache-Control</code>, <code>Set-Cookie</code>).</li>
+        <li><strong>Port conflict drill (10 min).</strong> Intentionally run two services on the same port, then resolve. <em>Success:</em> show the command that revealed the conflict and the fix.</li>
+      </ol>
+    </section>
+
+    <section class="card mastery">
+      <h2>Mastery Check</h2>
+      <ol>
+        <li>When ping fails but HTTPS works, what might be happening?</li>
+        <details><summary>Answer</summary><p>ICMP is blocked while TCP/443 is allowed. Some networks filter ping, so lack of Echo Replies doesn’t prove total outage.</p></details>
+
+        <li>Why use <code>curl --resolve</code> during outages?</li>
+        <details><summary>Answer</summary><p>It pins the hostname to a specific IP, bypassing DNS to test a given origin or load balancer target and rule out name resolution issues.</p></details>
+
+        <li>What does a TCP three-way handshake prove?</li>
+        <details><summary>Answer</summary><p>That bidirectional reachability exists between client and server at L3/L4 (both directions of SYN/ACK). It doesn’t prove application health.</p></details>
+
+        <li>Give two safe packet-capture practices in production.</li>
+        <details><summary>Answer</summary><p>(1) Minimize scope with filters and short durations. (2) Protect PCAPs (access controls, redaction) and avoid capturing secrets where possible.</p></details>
+
+        <li>How can traceroute mislead you?</li>
+        <details><summary>Answer</summary><p>Routers may deprioritize or block TTL-expired responses, causing “stars” even when forwarding traffic. Asymmetry means the return path may differ from the forward path.</p></details>
+
+        <li>What suggests an SNI/certificate mismatch?</li>
+        <details><summary>Answer</summary><p>TLS alert after ClientHello, <code>curl -v</code> shows certificate CN/SAN not matching the requested hostname; browser shows name-mismatch error.</p></details>
+
+        <li>How do you confirm a port conflict locally?</li>
+        <details><summary>Answer</summary><p>List listeners (<code>ss -ltnp</code> / <code>netstat -ano</code>), identify the PID using the port, and stop or reconfigure that process.</p></details>
+      </ol>
+    </section>
+
+    <section class="card">
+      <h2>Recap &amp; Next Steps</h2>
+      <p>You practiced the essential tools—ping, traceroute, nslookup/dig, curl—and learned to capture and read the wire with Wireshark/tcpdump. You now have reliable workflows for classic failures: unreachable hosts, broken DNS, misrouted traffic, TLS problems, and local port conflicts. In the next chapter, you’ll apply everything in a <strong>guided project</strong>—standing up a mini network, adding DNS and a web server, and debugging end-to-end connectivity.</p>
+    </section>
+
+    <div class="next-prev">
+      <a href="chapters/ch05.html" rel="prev">← Previous: Transport &amp; Application Protocols</a>
+      <a href="chapters/ch07.html" rel="next">Next: Guided Project — Mini Network →</a>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    © Networking for Software Engineers (Beginner). Built for clarity and practice.
+  </footer>
+
+  <!-- CHECKLIST
+    - [x] theme.css+app.js loaded
+    - [x] <base> present & correct
+    - [x] Canonical nav verbatim; active link handled by app.js
+    - [x] Pager prev/next valid (ch05, ch07)
+    - [x] Depth minima met: ≥1200 words; ≥2 examples; ≥1 case study; compare/contrast; analogy; ≥1 figure
+    - [x] Resources 3–6 with rationale
+    - [x] Practice 3–5 with time & success criteria
+    - [x] Mastery 5–7 with answers
+    - [x] Terms staged: ICMP, TTL, resolver, SNI, handshake, PCAP, NAT, gateway, CNAME, RST
+    - [x] No TODOs
+  -->
+</body>
+</html>
