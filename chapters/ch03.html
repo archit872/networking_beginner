@@ -111,13 +111,6 @@
         A practical mapping places Ethernet/Wi-Fi at OSI 1–2 ↔ TCP/IP Link; IP/ICMP/ARP at OSI 3 ↔ TCP/IP Internet; TCP/UDP at OSI 4 ↔ TCP/IP Transport; and everything from DNS to HTTP, TLS, and data formats at OSI 5–7 ↔ TCP/IP Application. This mapping helps you pick the right tool: if DNS fails, check Application; if routes look wrong, check Network; if only Wi-Fi is flaky, check Link/Physical.
       </p>
 
-      <figure>
-        <img src="../assets/osi-tcpip-map.svg" alt="Side-by-side diagram mapping OSI's 7 layers to TCP/IP's 4 layers with example protocols at each layer">
-        <figcaption>
-          OSI ↔ TCP/IP mapping with example protocols. Use it as a mental map: start at the Application and work down until you find the first layer that fails, then fix from there upward.
-        </figcaption>
-      </figure>
-
       <h3 id="email-example">Example: sending an email (encapsulation journey)</h3>
       <p>
         Your mail client composes a message (<strong>Application</strong>) and negotiates <abbr title="Transport Layer Security">TLS</abbr> presentation. It uses <strong>TCP</strong> (<strong>Transport</strong>) on port 587 to speak <abbr title="Simple Mail Transfer Protocol">SMTP</abbr>. The operating system wraps the TCP segment in an <strong>IP</strong> packet (<strong>Network/Internet</strong>) addressed to the mail server. The network interface encapsulates this into an <strong>Ethernet</strong>/<strong>Wi-Fi</strong> frame (<strong>Data Link/Link</strong>) with source/destination MACs and sends it over the <strong>Physical</strong> medium. Each router removes the link frame, examines IP headers, and re-frames onto the next link. At the server, decapsulation reverses the process.
@@ -316,10 +309,10 @@
   - [x] Practice 3 items with time & success criteria
   - [x] Mastery 5–7 Qs with answers in <details>
   - [x] ≥8 glossary terms via <abbr> (OSI, TCP, UDP, IP, MAC, ARP, ICMP, VLAN, TLS, JSON, PMTUD, MTU, default gateway)
-  - [x] ≥1 figure referencing ../assets/ (osi-tcpip-map.svg)
   -->
 </body>
 </html>
+
 
 
 

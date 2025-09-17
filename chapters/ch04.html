@@ -66,13 +66,6 @@
         An IPv4 address is 32 bits, typically written as four decimal octets: <code>a.b.c.d</code>. A <strong><abbr title="Network mask indicating which bits identify the network versus host">subnet mask</abbr></strong> (e.g., <code>255.255.255.0</code>) or a <strong><abbr title="CIDR indicates the number of leading 1-bits in the mask, e.g., /24">CIDR prefix</abbr></strong> (e.g., <code>/24</code>) tells you which bits identify the network and which identify the host.
       </p>
 
-      <figure>
-        <img src="../assets/ip-address-anatomy.svg" alt="Diagram labeling an IPv4 address with network bits and host bits under a /24 and /20 mask">
-        <figcaption>
-          IPv4 address anatomy: under <code>/24</code>, the first 24 bits represent the network; under <code>/20</code>, the network is larger, leaving fewer host bits per subnet.
-        </figcaption>
-      </figure>
-
       <h3 id="private-ranges">Private addressing &amp; NAT</h3>
       <p>
         Many environments use private ranges that are not routed on the public Internet: <code>10.0.0.0/8</code>, <code>172.16.0.0/12</code>, and <code>192.168.0.0/16</code>. A <strong><abbr title="Network Address Translation">NAT</abbr></strong> gateway maps many private hosts to a public <abbr title="Internet Protocol">IP</abbr>, rewriting addresses and ports. This allows home networks and clouds to scale internal addressing without consuming public space.
@@ -138,13 +131,6 @@
       <p>
         Routing is the process of choosing where to send a packet next. Hosts and routers consult a <strong><abbr title="Table of destination prefixes and their next hops">routing table</abbr></strong>. The key rule is <strong>longest-prefix match</strong>: the route with the most specific prefix (largest <code>/n</code>) that matches the destination address wins.
       </p>
-
-      <figure>
-        <img src="../assets/routing-path.svg" alt="Diagram of a host with a routing table selecting between a /24 local route, a /16 corporate route, and the 0.0.0.0/0 default gateway">
-        <figcaption>
-          Longest-prefix match in action: a destination matching <code>10.0.5.0/24</code> beats a broader <code>10.0.0.0/16</code>, which both beat the default route <code>0.0.0.0/0</code>.
-        </figcaption>
-      </figure>
 
       <h3 id="default-gw">Default gateways</h3>
       <p>
@@ -313,10 +299,10 @@
   - [x] Practice 3 items with time & success criteria
   - [x] Mastery 5–7 Qs with answers in <details>
   - [x] ≥10 glossary terms via <abbr> (CIDR, subnet, mask, default gateway, NAT, ARP, SLAAC, ULA, routing table, longest-prefix match, MTU)
-  - [x] ≥1 figure referencing ../assets/ (ip-address-anatomy.svg; routing-path.svg)
   -->
 </body>
 </html>
+
 
 
 

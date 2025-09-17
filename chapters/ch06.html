@@ -63,13 +63,6 @@
     <!-- The Workflow -->
     <section class="section">
       <h2 id="workflow">1) The 6-Step Debugging Workflow</h2>
-      <figure>
-        <img src="../assets/developer-debug-flow.svg" alt="Flow diagram of a six-step network debugging workflow: Check Link → DNS → Reachability → Ports → TLS/HTTP → Packet capture">
-        <figcaption>
-          Start broad and narrow down: <em>Link</em> → <em>DNS</em> → <em>Reachability</em> → <em>Ports</em> → <em>TLS/HTTP</em> → <em>Packets</em>. Each step uses simple tests and only “graduates” to deeper tools if needed.
-        </figcaption>
-      </figure>
-
       <ol>
         <li><strong>Check the link.</strong> Is your interface up? On Linux: <span class="kbd">ip -s link</span>. On macOS: <span class="kbd">ifconfig</span> or GUI. On Windows: <span class="kbd">ipconfig</span>. Look for carrier, <abbr title="Received/Transmitted data counters and errors">RX/TX</abbr> errors, and <abbr title="Dynamic Host Configuration Protocol assigns IPs and network config">DHCP</abbr> lease.</li>
         <li><strong>Resolve the name.</strong> <span class="kbd">dig +short api.example.com</span> or <span class="kbd">nslookup</span>. Verify <abbr title="Address record">A/AAAA</abbr> and <abbr title="Canonical Name">CNAME</abbr> answers; check <abbr title="Time To Live">TTL</abbr> to understand caching.</li>
@@ -119,13 +112,6 @@
       <p>
         Packet capture verifies whether the network is delivering what your app expects. Start narrow: capture on the interface facing your target, apply a capture filter (e.g., <code>host 198.51.100.10 and tcp port 443</code>), then widen only if needed. In Wireshark, use display filters like <code>dns</code>, <code>tcp.flags.syn==1</code>, or <code>http</code>.
       </p>
-
-      <figure>
-        <img src="../assets/pcap-annotations.svg" alt="Screenshot-style schematic highlighting DNS query/response, TCP handshake, TLS ClientHello, and HTTP/2 frames in a packet timeline">
-        <figcaption>
-          A “healthy” sequence for an HTTPS request: DNS response → TCP 3-way handshake → TLS ClientHello/ServerHello → HTTP/2 frames. Gaps or resets reveal failure points.
-        </figcaption>
-      </figure>
 
       <div class="callout info">
         <strong>Tip:</strong> If traffic is encrypted (TLS), headers at lower layers are still useful: you can confirm handshakes, <abbr title="Maximum segment size negotiated in TCP options">MSS</abbr>, retransmissions, <abbr title="Keepalive messages maintain idle connections">keepalives</abbr>, and <abbr title="Reset: abrupt TCP connection close">RST</abbr> causes without decrypting payloads.
@@ -309,10 +295,10 @@
   - [x] Practice 3–4 tasks with time & success criteria
   - [x] Mastery 5–7 Qs with answers in <details>
   - [x] ≥10 glossary terms via <abbr> (ping, traceroute, dig, DNS, TTL, CNAME, ICMP, TCP, TLS, SNI, NAT, LAN, bridge, VPN, MSS, MTU)
-  - [x] ≥1 figure referencing ../assets/ (developer-debug-flow.svg; pcap-annotations.svg)
   -->
 </body>
 </html>
+
 
 
 

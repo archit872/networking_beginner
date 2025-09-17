@@ -72,13 +72,6 @@
         <li><strong>W1 (Web):</strong> Web server hosting a static page and JSON API; optional self-signed TLS for learning.</li>
       </ul>
 
-      <figure>
-        <img src="../assets/mini-network-topology.svg" alt="Three-node network diagram: Client H1 on 10.10.10.0/24, Router R1 with interfaces on 10.10.10.1 and 10.10.20.1, and Web W1 on 10.10.20.0/24. DNS forwarder on R1. Default routes from H1 and W1 to R1.">
-        <figcaption>
-          Topology: two subnets (<code>10.10.10.0/24</code> and <code>10.10.20.0/24</code>) with R1 routing between them. H1 and W1 use R1 as their default gateway. R1 forwards DNS queries upstream.
-        </figcaption>
-      </figure>
-
       <div class="callout info">
         <strong>Analogy:</strong> Think of R1 as your office’s receptionist: everyone on each floor (subnet) hands mail to the receptionist (gateway) to reach other floors or the outside world.
       </div>
@@ -122,13 +115,6 @@ Hostnames: web.local → 10.10.20.100
           <p><em>Pros:</em> Fast, reproducible, cross-platform. <em>Cons:</em> Abstracts some link-layer details.</p>
         </div>
       </div>
-
-      <figure>
-        <img src="../assets/docker-compose-dns-web.svg" alt="High-level docker-compose style diagram showing three services: r1 (router+dns), h1 (client), w1 (web) attached to two bridge networks: netA 10.10.10.0/24 and netB 10.10.20.0/24">
-        <figcaption>
-          Containerized path: two bridges (<code>netA</code> and <code>netB</code>). R1 connects to both; H1 to <code>netA</code>; W1 to <code>netB</code>. R1 forwards and runs DNS.
-        </figcaption>
-      </figure>
 
       <details>
         <summary>Example docker-compose.yml (conceptual)</summary>
@@ -195,13 +181,7 @@ ping -c 2 web.local
 curl -v http://web.local/health.json
       </code></pre>
 
-      <figure>
-        <img src="../assets/dns-web-stack.svg" alt="Stack diagram showing H1 issuing a DNS query to R1, R1 forwarding or answering locally, and H1 establishing TCP to W1 for HTTP">
-        <figcaption>
-          Resolution &amp; request flow: H1 asks R1 for <code>web.local</code>; R1 answers from local zone or forwards upstream; H1 connects to W1 via R1 using TCP to fetch content.
-        </figcaption>
-      </figure>
-    </section>
+      </section>
 
     <!-- Break & Fix Lab -->
     <section class="section">
@@ -395,10 +375,10 @@ curl -v http://web.local/health.json
   - [x] Practice 3–5 tasks with time & success criteria
   - [x] Mastery 5–7 Qs with answers in <details>
   - [x] ≥10 glossary terms via <abbr> (gateway, resolver, DHCP, VLAN, bridge, ARP, PMTUD, MTU, MSS, QUIC, NAT, CA, SNI)
-  - [x] ≥1 figure (../assets/mini-network-topology.svg) + additional figures (docker-compose-dns-web.svg, dns-web-stack.svg)
   -->
 </body>
 </html>
+
 
 
 
