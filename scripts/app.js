@@ -40,20 +40,9 @@
     if (!links.length) return;
 
     const here = normalizePath(location.href);
-    const hereLower = here.toLowerCase();
     links.forEach(a => a.removeAttribute("aria-current"));
-
     let active = links.find(a => sameDoc(a.href, here));
-    if (!active) {
-      active = links.find(a => {
-        const pattern = (a.dataset.activePath || "").toLowerCase();
-        if (!pattern) return false;
-        return pattern.endsWith("/") ? hereLower.startsWith(pattern) : hereLower === pattern;
-      });
-    }
-    if (!active) {
-      active = links.find(a => /index\.html$/i.test(normalizePath(a.href)));
-    }
+    if (!active) active = links.find(a => /index\.html$/i.test(normalizePath(a.href)));
     if (active) active.setAttribute("aria-current", "page");
   }
 
@@ -199,6 +188,8 @@
   // Optional API
   window.BookBuilder = { refreshActiveNav: setActiveNav };
 })();
+
+
 
 
 
