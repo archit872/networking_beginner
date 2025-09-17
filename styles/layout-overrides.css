@@ -1,0 +1,14 @@
+/* Layout overrides to ensure centered content across pages without touching the main theme. */
+.container {
+  width: 100%;
+  max-width: calc(var(--maxw, 1024px) + 32px);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.app-nav .container.inner {
+  padding-left: 16px;
+  padding-right: 16px;
+}
