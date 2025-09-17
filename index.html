@@ -1,194 +1,198 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Networking for Software Engineers (Beginner) — Book</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="A dark-themed, developer-focused book website that teaches networking fundamentals—models, IP addressing, routing, protocols, tools, and a guided project." />
-  <meta property="og:title" content="Networking for Software Engineers (Beginner)" />
-  <meta property="og:description" content="Foundational networking for software engineers: concepts, models, IP, routing, protocols, tools, and a hands-on mini-network project." />
-  <meta property="og:type" content="website" />
-  <meta name="theme-color" content="#0b0f14" />
+  <meta charset="utf-8">
   <base href="./">
-  <link rel="stylesheet" href="styles/theme.css" />
-  <script defer src="scripts/app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Networking for Software Engineers (Beginner) — Book Website</title>
+  <meta name="description" content="A beginner-friendly, developer-focused book website that teaches foundational computer networking concepts, vocabulary, and workflows to support software development, debugging, and system integration.">
+  <meta property="og:title" content="Networking for Software Engineers (Beginner)">
+  <meta property="og:description" content="Foundational networking for developers: models, IP addressing, tools, and a guided mini-network project.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="index.html">
+  <meta name="theme-color" content="#0b0f14">
+
+  <link rel="stylesheet" href="styles/theme.css">
+  <script src="scripts/app.js" defer></script>
 </head>
 <body>
-  <!-- =======================================================
-       Canonical Navigation (copy verbatim into all pages)
-       Only aria-current differs per page.
-       ======================================================= -->
-  <nav class="app-nav" data-open="false">
-    <div class="wrap">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Canonical Nav: copy verbatim to every page; only aria-current changes per page -->
+  <nav class="app-nav" aria-label="Primary">
+    <div class="container inner">
       <div class="brand">Networking for Software Engineers</div>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="app-menu">Menu</button>
-      <div id="app-menu" class="menu toc-scroller" role="navigation" aria-label="Primary">
-        <a href="index.html" aria-current="page">Home</a>
-        <a href="chapters/ch01.html">Chapters</a>
-        <a href="chapters/appendix.html">Appendix</a>
-        <a href="chapters/glossary.html">Glossary</a>
+      <button class="toggle js-nav-toggle" aria-expanded="false" aria-controls="top-menu" aria-label="Toggle navigation">
+        ☰ Menu
+      </button>
+      <div id="top-menu" class="menu" role="menubar">
+        <a href="index.html" aria-current="page" role="menuitem">Home</a>
+        <a href="chapters/ch01.html" role="menuitem">Chapters</a>
+        <a href="chapters/appendix.html" role="menuitem">Appendix</a>
+        <a href="chapters/glossary.html" role="menuitem">Glossary</a>
       </div>
     </div>
   </nav>
 
-  <main class="container">
-    <header class="page-hero">
-      <span class="badge">Beginner • Practical • Developer-Focused</span>
+  <header class="page-hero">
+    <div class="container">
+      <div class="meta">
+        <span class="badge badge-primary">Beginner</span>
+        <span class="badge">Version 1.0</span>
+        <span class="badge">Framework: Vanilla</span>
+      </div>
       <h1>Networking for Software Engineers (Beginner)</h1>
-      <p class="muted">Audience: software engineers with basic programming knowledge and little to no formal networking background. Goal: build the vocabulary, mental models, and workflows needed to debug, design, and integrate networked software with confidence.</p>
-    </header>
+      <p class="abstract">
+        This practical, developer-first book builds your networking intuition from the ground up. You’ll learn the language of networks, how the <abbr title="Open Systems Interconnection">OSI</abbr> and TCP/IP models map to real software, and how to wield tools like <code>ping</code>, <code>traceroute</code>, <code>nslookup</code>, and Wireshark. Along the way you’ll practice with realistic tasks and complete a guided mini-project to set up and debug a small network.
+      </p>
+      <p class="muted">Author: BookBuilder Project • License: Educational use</p>
+    </div>
+  </header>
 
-    <section class="card">
-      <h2>Why this book</h2>
+  <main id="main" class="container section">
+    <section class="card fade-in" id="about">
+      <h2>How to Use This Book</h2>
       <p>
-        Your code doesn’t run in a vacuum—it rides a network of cables, radios, switches, and protocols.
-        Understanding how requests travel, how failures surface, and how tools expose what’s really happening
-        is the difference between guessing and engineering. This book gives you a strong foundation without drowning
-        you in vendor-specific detail. You’ll learn how to explain <em>why</em> packets move the way they do, and how to
-        fix issues when they don’t.
+        You don’t need prior networking experience—just basic programming comfort. Each chapter opens with clear objectives and ends with practice and a mastery check. Skim the chapter overview first, then read linearly. When you see a callout, slow down: it often highlights a common pitfall or a trade-off that matters in real engineering work.
       </p>
       <p>
-        We take a pragmatic, developer-first approach: clear explanations, precise terminology, visual figures,
-        hands-on tasks, and step-by-step workflows. Each chapter ends with practice tasks and a mastery check
-        (with sample answers hidden in <code>&lt;details&gt;</code>) so you can verify your understanding immediately.
+        The curriculum takes a “concept → workflow → hands-on” approach. Early chapters give you vocabulary and mental models; middle chapters connect those ideas to everyday developer tasks; later chapters guide you through building and debugging a mini network. If you’re short on time, read the introductions and summaries, then do the Practice sections—these are intentionally scoped and time-boxed.
       </p>
-    </section>
-
-    <section class="grid-2">
-      <div class="card">
-        <h2>How to use this book</h2>
-        <ol>
-          <li><strong>Read actively.</strong> Translate new terms into your own words. Use the <span class="pill">Glossary</span> liberally.</li>
-          <li><strong>Practice immediately.</strong> After each chapter, do the short exercises—treat them like you treat unit tests.</li>
-          <li><strong>Debug out loud.</strong> Use the provided workflows (ping → DNS → traceroute → curl → logs) to reason, not just try things.</li>
-          <li><strong>Build the project.</strong> Chapter 7 guides you through a mini network, reinforcing models, IPs, routing, and tooling.</li>
-          <li><strong>Reflect.</strong> Chapter 8 consolidates pitfalls, best practices, and next steps so you can plan your learning path.</li>
-        </ol>
-      </div>
-      <div class="card">
-        <h2>What you’ll need</h2>
-        <ul>
-          <li>A laptop with terminal access (macOS, Linux, or Windows with PowerShell).</li>
-          <li>Ability to install basic tools (Wireshark, curl) and optional simulators (Docker, Packet Tracer).</li>
-          <li>Comfort writing and running simple commands.</li>
-        </ul>
-        <div class="callout info">
-          <strong>Tip:</strong> If you’re on a locked-down machine, you can still follow along with most CLI workflows and visualizations.
-        </div>
+      <p>
+        Keep your terminal open as you read. Many examples use cross-platform tools available on macOS, Linux, and Windows. Try the commands on your own machine and compare outputs. For deeper dives, consult the Resources at the end of each chapter; they were chosen for clarity and practical value.
+      </p>
+      <div class="callout info">
+        <strong>Tip:</strong> Create a notes file. For each new term (e.g., <em>packet</em>, <em>latency</em>, <em>gateway</em>), write a plain definition, a formal definition, a pitfall, and an example. This mirrors how the Glossary is structured and accelerates retention.
       </div>
     </section>
 
-    <section class="card">
-      <h2>Progression & Outcomes</h2>
-      <div class="grid-2">
-        <div>
+    <section class="section" id="audience-goal">
+      <h2>Audience & Goal</h2>
+      <p>
+        <strong>Audience:</strong> Software engineers with basic programming knowledge and little or no formal networking background.
+      </p>
+      <p>
+        <strong>Goal:</strong> Gain a foundational understanding of computer networking concepts, vocabulary, and workflows to support software development, debugging, and system integration tasks.
+      </p>
+    </section>
+
+    <section class="section" id="checklist">
+      <h2>Getting Ready Checklist</h2>
+      <ul>
+        <li>Have a terminal and a browser available.</li>
+        <li>Know how to install packages on your OS (Homebrew/apt/winget).</li>
+        <li>Optional: Install Wireshark for packet capture and Docker Desktop for sandboxed networking.</li>
+        <li>Set aside 30–60 minutes per chapter for reading, plus practice time.</li>
+      </ul>
+    </section>
+
+    <section class="section" id="progression">
+      <h2>Progression Map</h2>
+      <div class="grid two">
+        <div class="card">
           <h3>Beginner End Goal</h3>
-          <p>Understand core vocabulary (packet, protocol, latency), the OSI/TCP/IP models, IP addressing/subnetting basics, and how to use essential tools. You’ll be able to diagram flows, identify where things break, and communicate clearly with ops and SRE teammates.</p>
+          <ul>
+            <li>Speak the core vocabulary with confidence.</li>
+            <li>Understand OSI vs TCP/IP layering and why abstraction matters.</li>
+            <li>Configure IP basics (addresses, subnets, gateways) and read routes.</li>
+            <li>Use developer-centric tools to diagnose connectivity and API issues.</li>
+            <li>Set up and debug a small network end-to-end.</li>
+          </ul>
         </div>
-        <div>
-          <h3>Next Steps</h3>
-          <p>With fundamentals in place, you can move into intermediate topics: advanced routing (e.g., BGP), TLS and PKI, cloud and container networking, service meshes, and performance tuning.</p>
+        <div class="card">
+          <h3>Beyond This Book</h3>
+          <ul>
+            <li><strong>Intermediate:</strong> Routing protocols, TLS, cloud VPCs, service networking.</li>
+            <li><strong>Advanced:</strong> Scalability, performance tuning, network security, and research-grade architectures.</li>
+          </ul>
         </div>
       </div>
     </section>
 
-    <section class="card">
-      <h2>Table of Contents</h2>
-      <p class="muted">Eight chapters build from first principles to a guided project, followed by a consolidation chapter. Use the <strong>Appendix</strong> for checklists and the <strong>Glossary</strong> to clarify terms on the fly.</p>
-      <div class="toc-grid">
-        <a class="card" href="chapters/ch01.html">
-          <h3>Chapter 1 • Introduction & Philosophy of Networking</h3>
-          <p class="muted">Why networking matters for developers; history and goals; where it shows up in your daily work.</p>
-        </a>
-        <a class="card" href="chapters/ch02.html">
-          <h3>Chapter 2 • Core Concepts of Computer Networking</h3>
-          <p class="muted">Bits, signals, bandwidth, latency; packets and protocols; Ethernet and Wi-Fi essentials.</p>
-        </a>
-        <a class="card" href="chapters/ch03.html">
-          <h3>Chapter 3 • The OSI and TCP/IP Models</h3>
-          <p class="muted">Layering and abstraction; OSI vs TCP/IP; mapping common software tasks across layers.</p>
-        </a>
-        <a class="card" href="chapters/ch04.html">
-          <h3>Chapter 4 • IP Addressing, Subnetting & Routing Basics</h3>
-          <p class="muted">IPv4 and IPv6 overview; CIDR; gateways and routing fundamentals.</p>
-        </a>
-        <a class="card" href="chapters/ch05.html">
-          <h3>Chapter 5 • Transport & Application Layer Protocols</h3>
-          <p class="muted">TCP vs UDP; HTTP/HTTPS, DNS, and email protocols; real-world request journeys.</p>
-        </a>
-        <a class="card" href="chapters/ch06.html">
-          <h3>Chapter 6 • Networking Tools & Workflows for Developers</h3>
-          <p class="muted">ping, traceroute, nslookup, curl; Wireshark basics; structured debugging flows.</p>
-        </a>
-        <a class="card" href="chapters/ch07.html">
-          <h3>Chapter 7 • Guided Project — Build & Debug a Mini Network</h3>
-          <p class="muted">Stand up a small network, add DNS and a web server, then trace and fix issues.</p>
-        </a>
-        <a class="card" href="chapters/ch08.html">
-          <h3>Chapter 8 • Pitfalls, Best Practices & Next Steps</h3>
-          <p class="muted">Common mistakes, documentation habits, security awareness, and a roadmap forward.</p>
-        </a>
-      </div>
-
-      <div class="next-prev">
-        <span></span>
-        <a href="chapters/ch01.html" rel="next">Start Chapter 1 →</a>
-      </div>
+    <section class="section" id="toc">
+      <h2>Chapters</h2>
+      <ol class="toc-list">
+        <li>
+          <a href="chapters/ch01.html">Chapter 1: Introduction &amp; Philosophy of Networking</a>
+          <small class="meta">Why networking matters for developers; history and goals; where it shows up in modern systems.</small>
+        </li>
+        <li>
+          <a href="chapters/ch02.html">Chapter 2: Core Concepts of Computer Networking</a>
+          <small class="meta">Packets, protocols, bandwidth vs latency; Ethernet &amp; Wi-Fi; switches and access points.</small>
+        </li>
+        <li>
+          <a href="chapters/ch03.html">Chapter 3: The OSI and TCP/IP Models</a>
+          <small class="meta">Seven OSI layers vs four-layer TCP/IP; mapping to real apps; encapsulation journey.</small>
+        </li>
+        <li>
+          <a href="chapters/ch04.html">Chapter 4: IP Addressing, Subnetting &amp; Routing Basics</a>
+          <small class="meta">IPv4/IPv6 structure, CIDR notation, default gateways, and routing fundamentals.</small>
+        </li>
+        <li>
+          <a href="chapters/ch05.html">Chapter 5: Transport &amp; Application Layer Protocols</a>
+          <small class="meta">TCP vs UDP, HTTP/HTTPS, DNS, and email protocols; request life-of-a-page.</small>
+        </li>
+        <li>
+          <a href="chapters/ch06.html">Chapter 6: Networking Tools &amp; Workflows for Developers</a>
+          <small class="meta">CLI tools, packet capture with Wireshark, debugging API calls and localhost ports.</small>
+        </li>
+        <li>
+          <a href="chapters/ch07.html">Chapter 7: Guided Project — Building &amp; Debugging a Mini Network</a>
+          <small class="meta">Configure a router and hosts, run a local DNS &amp; web server, and troubleshoot.</small>
+        </li>
+        <li>
+          <a href="chapters/ch08.html">Chapter 8: Pitfalls, Best Practices &amp; Next Steps</a>
+          <small class="meta">Common mistakes, documentation and security basics, and where to go next.</small>
+        </li>
+        <li>
+          <a href="chapters/appendix.html">Appendix: Review &amp; Progression</a>
+          <small class="meta">Pitfalls, checklists, quick reviews, and a progression roadmap.</small>
+        </li>
+        <li>
+          <a href="chapters/glossary.html">Glossary</a>
+          <small class="meta">Plain + formal definitions with pitfalls and examples for fast recall.</small>
+        </li>
+      </ol>
     </section>
 
-    <section class="grid-3">
-      <div class="card">
-        <h2>Learning Checklist</h2>
-        <ul>
-          <li>Explain the path a web request takes through layers.</li>
-          <li>Define packet, frame, protocol, MTU, bandwidth, latency.</li>
-          <li>Diagram IPv4 addressing and compute simple subnets.</li>
-          <li>Use ping, traceroute, nslookup/dig, and curl effectively.</li>
-          <li>Capture and interpret a minimal packet trace in Wireshark.</li>
-          <li>Stand up a tiny network and debug connectivity issues.</li>
-        </ul>
-      </div>
-      <div class="card">
-        <h2>What you’ll build</h2>
-        <p>You’ll assemble a three-node mini network, configure IPs and a default gateway, run a lightweight web server, add a local DNS entry, and trace a request from client to server—observing where failures occur and how to fix them.</p>
-      </div>
-      <div class="card">
-        <h2>Assessment Style</h2>
-        <p>Each chapter ends with 3–5 practice tasks and a 5–7 question mastery check. Answers are provided in collapsible sections so you can self-verify without spoilers.</p>
+    <section class="section">
+      <div class="callout warn">
+        <strong>Trade-off to remember:</strong> We balance conceptual depth with hands-on speed. If you’re rushing a deadline, focus on the Practice sections first; if you’re building long-term mastery, spend extra time with the Mastery questions and Resources.
       </div>
     </section>
-
-    <footer class="site-footer">
-      Built with a vanilla HTML/CSS/JS design system. Dark theme, accessible semantics, relative paths for portability.
-    </footer>
   </main>
 
-  <!--
-    LINK-MAP: [{
-      "home": "index.html",
-      "chapters": [
-        "chapters/ch01.html",
-        "chapters/ch02.html",
-        "chapters/ch03.html",
-        "chapters/ch04.html",
-        "chapters/ch05.html",
-        "chapters/ch06.html",
-        "chapters/ch07.html",
-        "chapters/ch08.html"
-      ],
-      "appendix": "chapters/appendix.html",
-      "glossary": "chapters/glossary.html"
-    }]
-  -->
+  <footer class="site-footer">
+    <div class="container">
+      <p class="muted">© 2025 BookBuilder Project. Designed for a dark, accessible reading experience.</p>
+    </div>
+  </footer>
 
-  <!-- =======================================================
-       CHECKLIST (for maintainers; remove if you like)
-       - [x] theme.css+app.js loaded
-       - [x] <base> present & correct (./)
-       - [x] Canonical nav verbatim; active link on Home
-       - [x] ToC matches file numbering
-       - [x] Head/meta ok
-       - [x] No TODOs
-       ======================================================= -->
+  <!--LINK-MAP: [
+    {"title":"Home","href":"index.html"},
+    {"title":"Chapter 1: Introduction & Philosophy of Networking","href":"chapters/ch01.html"},
+    {"title":"Chapter 2: Core Concepts of Computer Networking","href":"chapters/ch02.html"},
+    {"title":"Chapter 3: The OSI and TCP/IP Models","href":"chapters/ch03.html"},
+    {"title":"Chapter 4: IP Addressing, Subnetting & Routing Basics","href":"chapters/ch04.html"},
+    {"title":"Chapter 5: Transport & Application Layer Protocols","href":"chapters/ch05.html"},
+    {"title":"Chapter 6: Networking Tools & Workflows for Developers","href":"chapters/ch06.html"},
+    {"title":"Chapter 7: Guided Project — Building & Debugging a Mini Network","href":"chapters/ch07.html"},
+    {"title":"Chapter 8: Pitfalls, Best Practices & Next Steps","href":"chapters/ch08.html"},
+    {"title":"Appendix","href":"chapters/appendix.html"},
+    {"title":"Glossary","href":"chapters/glossary.html"}
+  ]-->
+
+  <!--
+  CHECKLIST
+  - [x] /styles/theme.css + /scripts/app.js linked (paths correct for page location)
+  - [x] <base> present & correct (./)
+  - [x] Canonical nav verbatim; active link set to Home
+  - [x] ToC matches file numbering
+  - [x] Head/meta ok
+  - Depth quick checks for Index:
+    - [x] 600–900 words; clear “How to use this book”
+  - Assets:
+    - [x] No external images referenced on index (keeps /assets empty for now)
+  -->
 </body>
 </html>

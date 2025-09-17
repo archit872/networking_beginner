@@ -1,150 +1,282 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Chapter 1 — Introduction & Philosophy of Networking</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Chapter 1 introduces why networking matters, its history, and its role in software engineering." />
+  <meta charset="utf-8">
   <base href="../">
-  <link rel="stylesheet" href="styles/theme.css" />
-  <script defer src="scripts/app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 1 — Introduction & Philosophy of Networking</title>
+  <meta name="description" content="Why networking matters for software engineers; history, goals, and where networking shows up in modern systems. Clear objectives, examples, practice, and a mastery check.">
+  <meta property="og:title" content="Chapter 1 — Introduction & Philosophy of Networking">
+  <meta property="og:description" content="A developer-first introduction to computer networking: what it is, why it matters, and how it shapes everyday software work.">
+  <meta property="og:type" content="article">
+  <meta name="theme-color" content="#0b0f14">
+
+  <link rel="stylesheet" href="styles/theme.css">
+  <script src="scripts/app.js" defer></script>
 </head>
 <body>
-  <!-- Canonical Nav -->
-  <nav class="app-nav" data-open="false">
-    <div class="wrap">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Canonical Nav (verbatim across all pages). Only aria-current differs per page. -->
+  <nav class="app-nav" aria-label="Primary">
+    <div class="container inner">
       <div class="brand">Networking for Software Engineers</div>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="app-menu">Menu</button>
-      <div id="app-menu" class="menu toc-scroller" role="navigation" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a href="chapters/ch01.html" aria-current="page">Chapters</a>
-        <a href="chapters/appendix.html">Appendix</a>
-        <a href="chapters/glossary.html">Glossary</a>
+      <button class="toggle js-nav-toggle" aria-expanded="false" aria-controls="top-menu" aria-label="Toggle navigation">
+        ☰ Menu
+      </button>
+      <div id="top-menu" class="menu" role="menubar">
+        <a href="index.html" role="menuitem">Home</a>
+        <a href="chapters/ch01.html" aria-current="page" role="menuitem">Chapters</a>
+        <a href="chapters/appendix.html" role="menuitem">Appendix</a>
+        <a href="chapters/glossary.html" role="menuitem">Glossary</a>
       </div>
     </div>
   </nav>
 
-  <main class="container">
-    <header class="page-hero">
-      <span class="badge">Chapter 1</span>
-      <h1>Introduction & Philosophy of Networking</h1>
-      <p class="muted">Why networking matters, how it evolved, and where it fits in the daily work of a software engineer.</p>
-    </header>
+  <header class="page-hero">
+    <div class="container">
+      <div class="meta">
+        <span class="badge badge-primary">Beginner</span>
+        <span class="badge">Chapter 1</span>
+        <span class="badge">Estimated time: 45–60 min</span>
+      </div>
+      <h1>Introduction &amp; Philosophy of Networking</h1>
+      <p class="abstract">
+        Networking is how software leaves your laptop and meets the world. In this chapter you’ll build an intuition for what networks are, why they matter in day-to-day development, and how the Internet’s history shaped modern design choices. We’ll set the stage for everything that follows by establishing shared vocabulary and a developer-centered mental model.
+      </p>
+    </div>
+  </header>
 
+  <main id="main" class="container section">
     <section class="card">
-      <h2>Prerequisites</h2>
-      <p>None — this chapter assumes you’re starting from scratch. If you know how to run a program and open a website, you have all the context you need.</p>
-    </section>
-
-    <section class="card">
-      <h2>Objectives</h2>
+      <h2 id="prereqs">Prerequisites</h2>
       <ul>
-        <li>Understand why networking is essential for software engineers.</li>
-        <li>Learn the history and goals of computer networking.</li>
-        <li>Recognize the role of networking in modern software systems.</li>
+        <li>Basic programming comfort (any language).</li>
+        <li>A terminal and browser installed.</li>
+        <li>Curiosity about how requests travel from code to servers and back.</li>
       </ul>
     </section>
 
-    <section>
-      <h2>1. What is Networking?</h2>
-      <p>At its core, networking is about <strong>communication</strong> between machines. Imagine a <abbr title="Analogy for how computers exchange data">post office</abbr> that delivers messages: your program writes a letter, the network delivers it, and another program reads it. This analogy helps us see networking as structured, rule-bound, and reliable—until things break down.</p>
-      <p>Networking is everywhere: checking email, syncing code, streaming music, or deploying services. Each action triggers a cascade of protocols and packets behind the scenes.</p>
+    <section class="card">
+      <h2 id="objectives">Objectives</h2>
+      <ul>
+        <li>Explain, in plain terms, what computer networking is and where it shows up in software work.</li>
+        <li>Describe at a high level the historical goals that led from ARPANET to today’s Internet.</li>
+        <li>Recognize the developer impact of networking concepts like <abbr title="Internet Protocol">IP</abbr> addresses, <abbr title="Domain Name System">DNS</abbr>, and <abbr title="Transmission Control Protocol">TCP</abbr>/<abbr title="User Datagram Protocol">UDP</abbr>.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 id="what-is-networking">1) What is Networking?</h2>
+      <p>
+        At its core, networking is about moving information between machines reliably and efficiently. A network is a collection of connected devices (hosts) that communicate using shared rules called <strong><abbr title="A precise set of rules that govern message format and behavior">protocols</abbr></strong>. Data is broken into small units called <strong><abbr title="A formatted unit of data carried by a network">packets</abbr></strong> that traverse links and devices on their journey.
+      </p>
+      <h3 id="post-office-analogy">Communication analogy: the post office for computers</h3>
+      <p>
+        Imagine sending a physical letter. You write the message, put it in an envelope with a destination address, and drop it at a post office. Along the way, sorting centers and carriers route it to the recipient’s mailbox. Networking works similarly: your application writes data, the system wraps it in headers (envelopes) with <strong><abbr title="The numeric label assigned to each device on a network">IP addresses</abbr></strong>, and intermediate devices (routers) forward it to the destination.
+      </p>
+      <p>
+        This analogy also highlights performance concerns: the time a letter takes is like <strong><abbr title="Delay experienced by data as it travels from source to destination">latency</abbr></strong>; how many letters we can deliver per hour resembles <strong><abbr title="The amount of data transmitted per unit time">bandwidth</abbr></strong>; and how much useful mail arrives compared with total effort is akin to <strong><abbr title="Actual useful data delivered per unit time">throughput</abbr></strong>.
+      </p>
+
+      <h3 id="networking-everyday">Networking in everyday life</h3>
+      <p>
+        Every push to GitHub, API call to a cloud service, or message to a coworker’s chat client is a networked interaction. Your machine’s browser resolves human-friendly names via <strong><abbr title="Domain Name System: maps hostnames to IP addresses">DNS</abbr></strong>, establishes connections using <strong><abbr title="Transmission Control Protocol">TCP</abbr></strong> or <strong><abbr title="User Datagram Protocol">UDP</abbr></strong>, and exchanges application data (like <strong><abbr title="Hypertext Transfer Protocol">HTTP</abbr></strong> requests). Even local development uses networking: when you call <code>http://localhost:3000</code>, you’re exercising the same ideas, just looped back to your machine.
+      </p>
 
       <figure>
-        <img src="assets/fig01-post-office-analogy.svg" alt="Post office analogy of computer networking" />
-        <figcaption>A post office delivers envelopes; a network delivers packets. Both rely on rules and addresses.</figcaption>
+        <img src="assets/intro-network-diagram.svg" alt="Diagram of a laptop sending packets through a router to a web server, showing DNS lookup and HTTP response flow">
+        <figcaption>
+          High-level request path: a client resolves a domain via DNS, opens a TCP connection to the server’s IP, sends an HTTP request, and receives a response. Each hop touches different layers and devices.
+        </figcaption>
       </figure>
     </section>
 
-    <section>
-      <h2>2. Networking in Software Development</h2>
-      <p>For developers, networking appears in <strong>client-server</strong> and <strong>peer-to-peer</strong> systems. When your code calls an API, it becomes a client. When you host a service, you’re the server. Peer-to-peer models (like file sharing) let every node act as both client and server.</p>
-      <p>Distributed systems like microservices, chat apps, or multiplayer games all depend on robust networking. Understanding how requests flow makes debugging faster and design decisions clearer.</p>
+    <section class="section">
+      <h2 id="networking-in-dev">2) Networking in Software Development</h2>
+      <p>
+        For developers, networks are where correctness meets reality. Your unit tests pass, but the production call times out—was it the service, the path, the <strong><abbr title="A device that forwards packets between networks">router</abbr></strong>, <strong><abbr title="A network device that connects devices within a local network and forwards frames">switch</abbr></strong>, or a misconfigured <strong><abbr title="A node that routes traffic from a local network to other networks">gateway</abbr></strong>? Understanding networking saves hours of guesswork and helps you design resilient systems.
+      </p>
+
+      <h3 id="client-vs-p2p">Client-server vs peer-to-peer (compare &amp; contrast)</h3>
+      <table>
+        <thead><tr><th>Model</th><th>How it works</th><th>Strengths</th><th>Trade-offs</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Client–Server</td>
+            <td>Clients initiate requests to centralized servers.</td>
+            <td>Simplicity, centralized control, easier security &amp; monitoring.</td>
+            <td>Server bottlenecks, single points of failure, scaling cost.</td>
+          </tr>
+          <tr>
+            <td>Peer-to-Peer</td>
+            <td>Peers connect directly to each other.</td>
+            <td>Scales with participants, resilient to single failures.</td>
+            <td>Complex discovery, variable performance, harder governance.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout warn">
+        <strong>Design trade-off:</strong> Client–server eases operational control but can centralize <strong><abbr title="The extent to which a system can handle increased load">scalability</abbr></strong> risk. P2P spreads load but complicates coordination and <strong><abbr title="Measures that protect confidentiality, integrity, and availability">security</abbr></strong>.
+      </div>
+
+      <h3 id="apis-distributed">APIs and distributed systems</h3>
+      <p>
+        Modern apps are distributed by default: frontends call backends, backends call databases and other services, and events stream between components. An API is a contract transported over a network—often HTTP over TCP/IP—with semantics like idempotency and retries designed to handle <strong><abbr title="Unreliable links, variable latency, and reordering or loss of messages">network unreliability</abbr></strong>. Familiarity with <strong><abbr title="Name-to-address resolution system">DNS</abbr></strong>, <strong><abbr title="A translation from domain names to IPs cached locally or in resolvers">caching</abbr></strong>, and <strong><abbr title="Network Address Translation: remapping of IP addresses">NAT</abbr></strong> helps explain why an API might succeed from one environment and fail from another.
+      </p>
+
+      <h3 id="example-dev">Example: a flaky integration test</h3>
+      <p>
+        Your integration test hits <code>api.example.test</code> and fails randomly. By checking the resolver configuration, you discover two DNS records pointing to instances with different health. A simple change—directing tests to a stable <abbr title="Internet Protocol">IP</abbr> or using health-checked service discovery—stops the flakiness. The fix wasn’t in your code; it was in the network assumptions around it.
+      </p>
     </section>
 
-    <section>
-      <h2>3. The Evolution of Networks</h2>
-      <p>Networking has evolved from <abbr title="ARPANET: Advanced Research Projects Agency Network">ARPANET</abbr> to today’s global Internet. Early networks connected a few university computers. Now, billions of devices—wired and wireless—communicate constantly.</p>
-      <p>Wireless access points extend networks beyond cables, trading stability for convenience. Wired connections offer speed and predictability; wireless enables mobility. Engineers must often weigh this <strong>trade-off</strong> depending on application needs.</p>
+    <section class="section">
+      <h2 id="evolution">3) The Evolution of Networks</h2>
+      <p>
+        The Internet began as ARPANET, a research project connecting a handful of hosts to share resources. Its design principles—<em>end-to-end</em> intelligence, <em>best-effort</em> delivery, and loose <strong><abbr title="A way of structuring components and their connections">topologies</abbr></strong>—led to a resilient, heterogeneous network of networks. Over time, standards bodies and vendors converged on interoperable protocols so independently built systems could still talk.
+      </p>
 
-      <div class="callout warn">
-        <strong>Trade-off:</strong> Wired networks offer higher throughput and lower interference, but limit mobility. Wireless enables access anywhere, but suffers from interference, coverage gaps, and fluctuating speeds.
+      <h3 id="wired-wireless">Wired vs wireless evolution</h3>
+      <p>
+        Wired Ethernet gave predictable latency and high throughput; wireless (<strong><abbr title="A family of wireless networking standards based on IEEE 802.11">Wi-Fi</abbr></strong>) traded some predictability for mobility and easier deployment. Today, many environments blend both, with access points bridging wireless clients into a wired core. As a developer, assume variability: signal conditions, contention, and interference can affect performance even when the <em>code</em> hasn’t changed.
+      </p>
+
+      <h3 id="example-history">Example: why packets are small</h3>
+      <p>
+        Early links were slow and unreliable, so splitting messages into packets let the network retransmit small pieces on loss rather than resending everything. That same logic helps modern systems handle congestion and mobility. Even high-level features like HTTP/2 multiplexing build on the idea that dividing work and handling it piecemeal improves robustness.
+      </p>
+
+      <h3 id="case-study">Case study (~200 words): a production outage traced to a gateway</h3>
+      <div class="card">
+        <p>
+          A startup launched a new microservice that passed all CI checks and performed well in staging. Hours after deploying to production, alerts fired: timeouts on user sign-in, sporadic 502 errors, and API latency spikes. Engineers first suspected a memory leak, then a database lock. But metrics showed the application threads were mostly idle; the problem lay elsewhere.
+        </p>
+        <p>
+          Tracing a single request revealed it left the service’s container network, reached the node, and then… nothing. <code>traceroute</code> from the node stalled on hop one. Investigation showed the host’s default <strong><abbr title="A node that routes traffic from a local network to other networks">gateway</abbr></strong> was pointing at an old router interface removed during a maintenance window. Some nodes still had the stale route due to a configuration drift between autoscaling groups.
+        </p>
+        <p>
+          The team corrected the gateway, flushed ARP caches, and restored service. A postmortem added a boot-time route validation check and made gateway IPs configuration-as-code. The code was fine; the network plumbing wasn’t. The lesson: when symptoms look like “the app is slow,” verify reachability and routing early.
+        </p>
       </div>
     </section>
 
-    <section class="card">
-      <h2>Case Study: Debugging a Slow Build</h2>
-      <p>At a mid-sized software company, developers noticed their builds took twice as long when working from home. Logs showed dependency downloads failing intermittently. After investigation, the culprit was a flaky home Wi-Fi connection that dropped packets. Developers switched to wired Ethernet and immediately saw stable, faster builds.</p>
-      <p>This case highlights how network conditions directly impact developer productivity. Without understanding networking basics, the team might have blamed build tools or CI systems instead of their home network.</p>
-    </section>
-
-    <section>
-      <h2>Analogy: Roads and Vehicles</h2>
-      <p>Think of networks like <strong>roads</strong> and data like <strong>vehicles</strong>. Bandwidth is lane width, latency is the time vehicles spend waiting at traffic lights, and protocols are traffic laws. Just as efficient roads enable commerce, efficient networks enable digital services.</p>
-    </section>
-
-    <section class="card">
-      <h2>Resources</h2>
-      <ul class="resource-list">
-        <li><a href="https://inl.info.ucl.ac.be/CNP3" target="_blank">Computer Networking: Principles, Protocols and Practice (Olivier Bonaventure)</a> — free, approachable text with exercises.</li>
-        <li><a href="https://www.youtube.com/watch?v=qiQR5rTSshw" target="_blank">FreeCodeCamp: Computer Networking Full Course</a> — video overview with demos.</li>
+    <section class="section">
+      <h2 id="vocabulary">Essential Vocabulary (preview)</h2>
+      <p class="muted">You’ll deepen these in later chapters; for now, get comfortable with the words.</p>
+      <ul class="grid two">
+        <li><strong><abbr title="Formatted unit of data carried by a network">Packet</abbr></strong> — the “letter” of networking.</li>
+        <li><strong><abbr title="A set of rules governing data exchange">Protocol</abbr></strong> — language and procedures for communication.</li>
+        <li><strong><abbr title="Delay experienced by data from source to destination">Latency</abbr></strong> — time per trip.</li>
+        <li><strong><abbr title="Data capacity per unit time of a link">Bandwidth</abbr></strong> — lane width of the highway.</li>
+        <li><strong><abbr title="Actual useful data delivered per unit time">Throughput</abbr></strong> — what you really get.</li>
+        <li><strong><abbr title="Unique hardware identifier on local networks">MAC address</abbr></strong> — device identity on the link.</li>
+        <li><strong><abbr title="Resolves names to IPs">DNS</abbr></strong> — phonebook of the Internet.</li>
+        <li><strong><abbr title="Best-effort, connection-oriented transport protocol">TCP</abbr></strong> — reliable streams.</li>
+        <li><strong><abbr title="Connectionless transport protocol">UDP</abbr></strong> — speedy datagrams.</li>
+        <li><strong><abbr title="Mapping of a network’s components and links">Topology</abbr></strong> — how parts are arranged.</li>
+        <li><strong><abbr title="A Layer 2 device that forwards frames">Switch</abbr></strong> — local traffic director.</li>
+        <li><strong><abbr title="A Layer 3 device that forwards packets between networks">Router</abbr></strong> — inter-network courier.</li>
+        <li><strong><abbr title="Translates names to IP addresses and caches results">Resolver</abbr></strong> — your system’s DNS helper.</li>
+        <li><strong><abbr title="Protocol that maps IP addresses to MAC addresses">ARP</abbr></strong> — who has 10.0.0.5?</li>
       </ul>
     </section>
 
-    <section class="card practice">
-      <h2>Practice</h2>
-      <ul>
-        <li>Sketch a diagram showing how your computer connects to a website. Label client, server, and network components. (15 min)</li>
-        <li>Identify three everyday activities (e.g., video call, file upload, game streaming) and note how networking enables them. (10 min)</li>
-        <li>Compare wired and wireless connections in your environment—where do you use each, and why? (15 min)</li>
-      </ul>
+    <section class="section">
+      <h2 id="resources">Resources</h2>
+      <div class="resource-list">
+        <div class="item">
+          <div>
+            <a class="external" href="https://cnp3book.info.ucl.ac.be/" target="_blank">Computer Networking: Principles, Protocols and Practice (Bonaventure)</a>
+            <div class="meta">Free online textbook; clear explanations and practical labs.</div>
+          </div>
+          <span class="badge">Text</span>
+        </div>
+        <div class="item">
+          <div>
+            <a class="external" href="https://www.youtube.com/watch?v=qiQR5rTSshw" target="_blank">freeCodeCamp: Computer Networking Full Course</a>
+            <div class="meta">Video overview from first principles to applied topics.</div>
+          </div>
+          <span class="badge">Video</span>
+        </div>
+      </div>
     </section>
 
-    <section class="card mastery">
-      <h2>Mastery Check</h2>
+    <section class="section practice">
+      <div class="title">Practice <span class="badge">~20–30 min</span></div>
       <ol>
-        <li>Why is networking essential for software engineers?</li>
-        <details><summary>Answer</summary><p>Because most modern software is distributed: APIs, cloud services, and integrations depend on network flows. Without understanding networking, debugging and design decisions become guesswork.</p></details>
-
-        <li>Give one historical milestone in the evolution of networks.</li>
-        <details><summary>Answer</summary><p>ARPANET in the late 1960s, which demonstrated packet switching and laid the foundation for today’s Internet.</p></details>
-
-        <li>Explain the client-server vs peer-to-peer difference with an example.</li>
-        <details><summary>Answer</summary><p>Client-server: a mobile app requests data from a central API. Peer-to-peer: BitTorrent, where each participant uploads and downloads pieces of a file to/from others.</p></details>
-
-        <li>What is a trade-off between wired and wireless networking?</li>
-        <details><summary>Answer</summary><p>Wired offers speed and reliability but limits mobility. Wireless offers mobility but has interference and variable speed.</p></details>
-
-        <li>Use the road/vehicle analogy: What do bandwidth and latency represent?</li>
-        <details><summary>Answer</summary><p>Bandwidth = road/lane width (how much traffic can pass). Latency = delays like traffic lights (how long vehicles wait before moving).</p></details>
+        <li><strong>Sketch your path to a website (10 min).</strong> Draw your device, a router, DNS, the server, and the return path. <em>Success:</em> you can point to each hop and state its role.</li>
+        <li><strong>Name the layers involved (5–10 min).</strong> For your sketch, annotate which parts feel “physical,” “link,” “network,” “transport,” and “application.” <em>Success:</em> you can map steps to layers conversationally.</li>
+        <li><strong>Glossary drill (5–10 min).</strong> Write plain + formal + pitfall + example for five terms: packet, latency, DNS, router, bandwidth. <em>Success:</em> each definition is one sentence; pitfalls are concrete (“latency ≠ bandwidth”).</li>
       </ol>
     </section>
 
-    <section class="card">
-      <h2>Recap & Next Steps</h2>
-      <p>You’ve seen that networking is not abstract—it underpins every action in software development. You learned what networking is, where it shows up in development, and how it evolved. In the next chapter, we’ll build your core vocabulary: packets, protocols, bandwidth, latency, and how they work together.</p>
+    <section class="section mastery">
+      <div class="title">Mastery Check <span class="badge">Self-review</span></div>
+
+      <details>
+        <summary>1) In plain words, what is a network and why do we split data into packets?</summary>
+        <p><strong>Answer:</strong> A network is a set of connected devices that exchange data using agreed-upon rules (<em>protocols</em>). We packetize data so intermediate devices can forward, balance, and recover from loss efficiently without resending entire messages.</p>
+      </details>
+
+      <details>
+        <summary>2) Give an analogy for bandwidth vs latency and a pitfall when interpreting them.</summary>
+        <p><strong>Answer:</strong> Bandwidth is lane width on a highway; latency is the travel time. A pitfall is assuming more bandwidth always lowers latency—congestion, distance, or wireless conditions can still make trips slow.</p>
+      </details>
+
+      <details>
+        <summary>3) In a client–server app, where do DNS, TCP, and HTTP each fit?</summary>
+        <p><strong>Answer:</strong> DNS resolves the server’s name to an IP before connection; TCP establishes a reliable channel to that IP; HTTP defines request/response semantics that ride over the TCP connection.</p>
+      </details>
+
+      <details>
+        <summary>4) What is a default gateway and why would a wrong one cause timeouts?</summary>
+        <p><strong>Answer:</strong> It’s the router a host uses to reach external networks. If it’s wrong or unreachable, packets destined off-subnet have no valid next hop, so connections stall or fail.</p>
+      </details>
+
+      <details>
+        <summary>5) Why might an integration test be flaky due to DNS?</summary>
+        <p><strong>Answer:</strong> Multiple records, stale cache, or inconsistent resolvers can direct traffic to unhealthy instances, making success vary across runs or hosts.</p>
+      </details>
+
+      <details>
+        <summary>6) Explain MAC vs IP in one sentence each.</summary>
+        <p><strong>Answer:</strong> A MAC address identifies a network interface on the local link (Layer 2); an IP address identifies a host at the network layer (Layer 3) for routing across networks.</p>
+      </details>
     </section>
 
-    <div class="next-prev">
+    <section class="section">
+      <h2 id="recap">Recap &amp; Next Steps</h2>
+      <p>
+        You learned what networks are, how they resemble postal systems, where networks surface in software development, and how history shaped design choices. You previewed key vocabulary and practiced mapping an end-to-end request.
+      </p>
+      <p>
+        Next, in <a href="chapters/ch02.html">Chapter 2</a> you’ll solidify core concepts—signals, frames, and packets—then connect them to Ethernet and Wi-Fi so you can reason about performance and reliability from the ground up.
+      </p>
+    </section>
+
+    <nav class="next-prev">
       <span></span>
-      <a href="chapters/ch02.html" rel="next">Next: Core Concepts of Networking →</a>
-    </div>
+      <a href="chapters/ch02.html" rel="next">Next: Core Concepts of Computer Networking</a>
+    </nav>
   </main>
 
   <footer class="site-footer">
-    © Networking for Software Engineers (Beginner). Built for clarity and practice.
+    <div class="container">
+      <p class="muted">© 2025 BookBuilder Project.</p>
+    </div>
   </footer>
 
-  <!-- CHECKLIST
-    - [x] <base href="../"> correct
-    - [x] Canonical nav verbatim; active link on Chapters
-    - [x] Pager next only (ch02)
-    - [x] ≥1200 words target (met)
-    - [x] ≥2 examples, case study, compare/contrast, analogy
-    - [x] ≥8 glossary terms (e.g., post office, ARPANET, client-server, peer-to-peer, bandwidth, latency, wired, wireless)
-    - [x] ≥1 figure
-    - [x] Practice (3 tasks)
-    - [x] Mastery (5 Qs w/ answers)
+  <!--
+  CHECKLIST
+  - [x] /styles/theme.css + /scripts/app.js linked (paths correct for chapter page)
+  - [x] <base> present & correct (../)
+  - [x] Canonical nav verbatim; active link set to "Chapters"
+  - [x] Pager prev/next valid (no prev on ch01, next -> ch02)
+  - [x] Sections: prereqs, objectives, subsections, resources, practice, mastery, recap
+  - [x] Depth: ≥1,200 words; ≥2 examples; 1 case study; compare/contrast; analogy; trade-off
+  - [x] ≥8 glossary terms via <abbr> (packet, protocol, latency, bandwidth, throughput, MAC, DNS, TCP, UDP, topology, switch, router, resolver, ARP)
+  - [x] ≥1 figure referencing ../assets/ (intro-network-diagram.svg)
   -->
 </body>
 </html>

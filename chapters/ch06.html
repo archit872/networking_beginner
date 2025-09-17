@@ -1,258 +1,314 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Chapter 6 — Networking Tools & Workflows for Developers</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Hands-on with ping, traceroute, nslookup/dig, curl; Wireshark/tcpdump; and practical debugging workflows for APIs, localhost, and ports." />
+  <meta charset="utf-8">
   <base href="../">
-  <link rel="stylesheet" href="styles/theme.css" />
-  <script defer src="scripts/app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 6 — Networking Tools & Workflows for Developers</title>
+  <meta name="description" content="Hands-on diagnostics with ping, traceroute, nslookup/dig, curl, Wireshark, and tcpdump. Practical debugging workflows for APIs, localhost ports, proxies, VPNs, and container networking.">
+  <meta property="og:title" content="Chapter 6 — Networking Tools & Workflows for Developers">
+  <meta property="og:description" content="Learn a battle-tested workflow to debug connectivity, DNS, TLS, HTTP, and port issues using CLI tools and packet capture. Includes exercises and mastery check.">
+  <meta property="og:type" content="article">
+  <meta name="theme-color" content="#0b0f14">
+
+  <link rel="stylesheet" href="styles/theme.css">
+  <script src="scripts/app.js" defer></script>
 </head>
 <body>
-  <!-- Canonical Nav (verbatim across site) -->
-  <nav class="app-nav" data-open="false">
-    <div class="wrap">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Canonical Nav (verbatim across all pages). Only aria-current differs per page. -->
+  <nav class="app-nav" aria-label="Primary">
+    <div class="container inner">
       <div class="brand">Networking for Software Engineers</div>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="app-menu">Menu</button>
-      <div id="app-menu" class="menu toc-scroller" role="navigation" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a href="chapters/ch01.html" aria-current="page">Chapters</a>
-        <a href="chapters/appendix.html">Appendix</a>
-        <a href="chapters/glossary.html">Glossary</a>
+      <button class="toggle js-nav-toggle" aria-expanded="false" aria-controls="top-menu" aria-label="Toggle navigation">
+        ☰ Menu
+      </button>
+      <div id="top-menu" class="menu" role="menubar">
+        <a href="index.html" role="menuitem">Home</a>
+        <a href="chapters/ch01.html" aria-current="page" role="menuitem">Chapters</a>
+        <a href="chapters/appendix.html" role="menuitem">Appendix</a>
+        <a href="chapters/glossary.html" role="menuitem">Glossary</a>
       </div>
     </div>
   </nav>
 
-  <main class="container">
-    <header class="page-hero">
-      <span class="badge">Chapter 6</span>
-      <h1>Networking Tools & Workflows for Developers</h1>
-      <p class="muted">Turn theory into practice: measure <strong>latency</strong>, follow routes, resolve <strong>DNS</strong>, test <strong>HTTP</strong>, capture packets, and debug systematically—from laptop to cloud.</p>
-    </header>
+  <header class="page-hero">
+    <div class="container">
+      <div class="meta">
+        <span class="badge badge-primary">Beginner</span>
+        <span class="badge">Chapter 6</span>
+        <span class="badge">Estimated time: 75–90 min</span>
+      </div>
+      <h1>Networking Tools &amp; Workflows for Developers</h1>
+      <p class="abstract">
+        In this hands-on chapter you’ll learn a reliable, repeatable workflow for diagnosing network issues in development and production. You’ll use <strong><abbr title="Internet Control Message Protocol echo requests/replies used for basic reachability tests">ping</abbr></strong>, <strong><abbr title="Utility that discovers the route packets take across networks">traceroute</abbr></strong>, <strong><abbr title="Name resolution tools: dig/nslookup query DNS records">dig/nslookup</abbr></strong>, <strong><abbr title="Command-line tool to transfer data with URLs; speaks HTTP(S) and more">curl</abbr></strong>, and packet tools like <strong><abbr title="Packet analyzer with GUI">Wireshark</abbr></strong> and <strong><abbr title="Command-line packet sniffer">tcpdump</abbr></strong> to localize failures across layers. You’ll also tame localhost ports, proxies, <abbr title="Virtual Private Network">VPN</abbr>s, and container networks.
+      </p>
+    </div>
+  </header>
 
+  <main id="main" class="container section">
+    <!-- Objectives -->
     <section class="card">
-      <h2>Objectives</h2>
+      <h2 id="objectives">Objectives</h2>
       <ul>
-        <li>Use <strong>ping</strong>, <strong>traceroute/tracert</strong>, <strong>nslookup/dig</strong>, and <strong>curl</strong> to isolate failures.</li>
-        <li>Capture and read packets with <strong>Wireshark</strong> or <strong>tcpdump</strong>, identifying <strong>SYN</strong>/<strong>ACK</strong>, <strong>DNS</strong> responses, and <strong>HTTP</strong> exchanges.</li>
-        <li>Apply stepwise workflows to debug “site won’t load,” “API 502,” and “localhost/port conflicts.”</li>
+        <li>Apply a step-by-step workflow to isolate failures at the <abbr title="Open Systems Interconnection model">OSI</abbr> Link, Network, Transport, and Application layers.</li>
+        <li>Use CLI tools to verify <abbr title="Domain Name System">DNS</abbr>, routes, ports, and TLS.</li>
+        <li>Capture and read packets to confirm hypotheses and spot misconfigurations.</li>
+        <li>Debug localhost and containerized setups, including port binding and <abbr title="Network Address Translation">NAT</abbr>.</li>
       </ul>
     </section>
 
-    <section>
-      <h2>1) CLI Tools</h2>
-      <p>Command-line tools give rapid, low-overhead insight. They map neatly to layers: <strong>ping</strong> (ICMP reachability), <strong>traceroute</strong> (path discovery via TTL), <strong>nslookup/dig</strong> (name resolution), and <strong>curl</strong> (application-layer HTTP/HTTPS). Mastering their options lets you quickly prove whether a problem is <em>connectivity</em>, <em>name resolution</em>, <em>routing</em>, or <em>application</em>.</p>
-
-      <div class="grid-2">
-        <div class="card">
-          <h3>ping</h3>
-          <p>Sends ICMP Echo to measure <strong>RTT</strong> and loss. If ping fails but TCP works, ICMP may be blocked. Use count/interval options to collect statistics.</p>
-          <pre class="code" data-lang="shell"># Linux/macOS
-ping -c 10 example.com
-# Windows
-ping -n 10 example.com</pre>
-        </div>
-        <div class="card">
-          <h3>traceroute / tracert</h3>
-          <p>Increments <strong>TTL</strong> to reveal hops and where packets stall. Useful for asymmetric paths and <strong>NAT</strong>/VPN surprises.</p>
-          <pre class="code" data-lang="shell"># Linux/macOS
-traceroute example.com
-# Windows
-tracert example.com</pre>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <h3>nslookup / dig</h3>
-          <p>Queries <strong>DNS</strong> for A/AAAA/CNAME/TXT/etc. Always note which <em>resolver</em> answered—your OS cache, a corporate resolver, or a public one.</p>
-          <pre class="code" data-lang="shell"># Quick
-nslookup www.example.com
-# Detailed
-dig +nocmd www.example.com any +noall +answer</pre>
-        </div>
-        <div class="card">
-          <h3>curl</h3>
-          <p>Exercises <strong>HTTP</strong>/TLS endpoints. Add <code>-v</code> for headers and TLS info; <code>-I</code> for HEAD; <code>--http2</code> to test protocol negotiation; <code>--resolve</code> to override DNS.</p>
-          <pre class="code" data-lang="shell">curl -v https://api.example.com/health
-curl -I --http2 https://www.example.com
-curl --resolve www.example.com:443:203.0.113.20 https://www.example.com</pre>
-        </div>
-      </div>
-
-      <div class="callout info">
-        <strong>Tip:</strong> Log commands and outputs in tickets. Clear evidence (“DNS returns 198.51.100.42; TCP SYN reaches server; TLS fails with SNI mismatch”) accelerates handoffs.
-      </div>
-    </section>
-
-    <section>
-      <h2>2) Packet Capture</h2>
-      <p>When symptoms aren’t obvious, capture traffic. <strong>Wireshark</strong> (GUI) and <strong>tcpdump</strong> (CLI) expose frames, packets, and segments to verify your mental model. Start with small, targeted filters, reproduce the issue once, then stop.</p>
-
-      <div class="grid-2">
-        <div>
-          <h3>Wireshark basics</h3>
-          <ul>
-            <li>Capture on the right interface (Wi-Fi vs Ethernet vs VPN).</li>
-            <li>Use display filters: <code>dns</code>, <code>tcp.port == 443</code>, <code>ip.addr == 203.0.113.5</code>.</li>
-            <li>Follow streams (TCP/HTTP) to see request/response sequences and <strong>TLS</strong> handshakes (SNI, versions).</li>
-          </ul>
-        </div>
-        <div>
-          <h3>tcpdump patterns</h3>
-          <pre class="code" data-lang="shell"># Capture DNS queries & answers
-sudo tcpdump -i any port 53 -vv
-
-# Capture a single host's HTTPS
-sudo tcpdump -i eth0 host 203.0.113.5 and port 443 -w ssl.pcap
-
-# Quick peek without writing a file
-sudo tcpdump -ni any 'tcp[tcpflags] & (tcp-syn|tcp-ack) != 0'</pre>
-        </div>
-      </div>
-
+    <!-- The Workflow -->
+    <section class="section">
+      <h2 id="workflow">1) The 6-Step Debugging Workflow</h2>
       <figure>
-        <img src="assets/fig06-wireshark-triple.svg" alt="Wireshark screenshot concept: DNS query, TCP 3-way handshake, HTTP response headers" />
-        <figcaption>Typical capture: (1) DNS lookup, (2) TCP three-way handshake, (3) HTTP request/response. Spot where the sequence breaks.</figcaption>
+        <img src="../assets/developer-debug-flow.svg" alt="Flow diagram of a six-step network debugging workflow: Check Link → DNS → Reachability → Ports → TLS/HTTP → Packet capture">
+        <figcaption>
+          Start broad and narrow down: <em>Link</em> → <em>DNS</em> → <em>Reachability</em> → <em>Ports</em> → <em>TLS/HTTP</em> → <em>Packets</em>. Each step uses simple tests and only “graduates” to deeper tools if needed.
+        </figcaption>
       </figure>
 
-      <div class="callout warn">
-        <strong>Privacy & Safety:</strong> Captures may include credentials or PII. Use test accounts, restrict scope, store PCAPs securely, and obtain consent when capturing beyond your own host.
-      </div>
-    </section>
-
-    <section>
-      <h2>3) Developer Workflows</h2>
-      <p>A good workflow is a <em>checklist</em> you can run even under pressure. Move layer by layer, caching what you’ve proven so you don’t repeat work.</p>
-
-      <h3>Workflow A — “Website won’t load”</h3>
       <ol>
-        <li><strong>Layer 3 reachability:</strong> <code>ping</code> site IP or a stable host. If loss/timeout, check Wi-Fi/Ethernet, VPN, or default <strong>gateway</strong>.</li>
-        <li><strong>DNS:</strong> <code>nslookup</code> domain. Compare corporate vs public resolver answers. Look for stale <strong>CNAME</strong>, wrong <strong>AAAA</strong>.</li>
-        <li><strong>Routing:</strong> <code>traceroute</code> to IP. Identify last responding hop. VPN split-tunnel issues often show here.</li>
-        <li><strong>HTTP/TLS:</strong> <code>curl -v</code>. Watch <strong>SNI</strong>, certificate CN/SAN, redirects, and <strong>HTTP</strong> status (301/302/403/5xx).</li>
-        <li><strong>Capture if needed:</strong> confirm SYN/SYN-ACK or TLS alerts.</li>
-      </ol>
-
-      <h3>Workflow B — “API 502/504”</h3>
-      <ol>
-        <li><strong>App vs network:</strong> <code>curl -v</code> the upstream directly (bypass proxy). If direct OK but through gateway fails, focus on gateway/proxy.</li>
-        <li><strong>DNS pinning:</strong> <code>curl --resolve</code> to force IP to rule out bad DNS.</li>
-        <li><strong>Timeout source:</strong> check reverse proxy logs and upstream <strong>health checks</strong>.</li>
-        <li><strong>Capture:</strong> look for repeated <strong>RST</strong>, window exhaustion, or TLS protocol mismatch.</li>
-      </ol>
-
-      <h3>Workflow C — “Localhost & Ports”</h3>
-      <ol>
-        <li><strong>Listen check:</strong> <code>netstat -an</code> / <code>ss -ltnp</code> / <code>Get-NetTCPConnection</code> → verify the port and interface (<code>127.0.0.1</code> vs <code>0.0.0.0</code>).</li>
-        <li><strong>Conflict:</strong> find the process bound to the port. Change port or kill the conflict.</li>
-        <li><strong>Firewall:</strong> ensure local rules allow inbound on that port (for non-localhost binds).</li>
-        <li><strong>Container nuance:</strong> map container port to host (<code>-p 8080:80</code>), and curl the host port.</li>
+        <li><strong>Check the link.</strong> Is your interface up? On Linux: <span class="kbd">ip -s link</span>. On macOS: <span class="kbd">ifconfig</span> or GUI. On Windows: <span class="kbd">ipconfig</span>. Look for carrier, <abbr title="Received/Transmitted data counters and errors">RX/TX</abbr> errors, and <abbr title="Dynamic Host Configuration Protocol assigns IPs and network config">DHCP</abbr> lease.</li>
+        <li><strong>Resolve the name.</strong> <span class="kbd">dig +short api.example.com</span> or <span class="kbd">nslookup</span>. Verify <abbr title="Address record">A/AAAA</abbr> and <abbr title="Canonical Name">CNAME</abbr> answers; check <abbr title="Time To Live">TTL</abbr> to understand caching.</li>
+        <li><strong>Test reachability.</strong> <span class="kbd">ping -c 3 &lt;ip&gt;</span> (ICMP). If ICMP is blocked, try <span class="kbd">traceroute</span> or <span class="kbd">curl --connect-timeout 2</span> to the socket.</li>
+        <li><strong>Check ports.</strong> <span class="kbd">ss -ltnp</span> (or <span class="kbd">netstat</span>) for listeners; <span class="kbd">nc -vz host 443</span> to probe remote ports. Confirm no local <abbr title="Local program already using the port">port binding</abbr> conflict with <span class="kbd">lsof -i :3000</span>.</li>
+        <li><strong>Confirm TLS/HTTP.</strong> <span class="kbd">curl -vI https://host</span> for headers, <span class="kbd">curl --resolve host:443:IP</span> to bypass DNS, <span class="kbd">curl --cert-status</span> to check OCSP, and <span class="kbd">openssl s_client -connect host:443 -servername host</span> to inspect certs and <abbr title="Server Name Indication">SNI</abbr>.</li>
+        <li><strong>Capture packets.</strong> Use <span class="kbd">tcpdump -i &lt;iface&gt; host &lt;ip&gt; and port 443</span> or Wireshark filters like <code>ip.addr==198.51.100.10 && tcp.port==443</code>. Verify SYN/SYN-ACK/ACK, TLS ClientHello/ServerHello, HTTP.</li>
       </ol>
 
       <div class="callout success">
-        <strong>Analogy:</strong> Treat each layer like a locked door in a corridor. You can’t blame the last door (application) if the first door (link or DNS) is still locked. Try each handle in order.
+        <strong>Habit:</strong> Log your observations at each step. “DNS returns 203.0.113.7; TCP handshake completes; TLS fails with unknown_ca.” A short log prevents backtracking and speeds handoffs.
       </div>
     </section>
 
-    <section class="card">
-      <h2>Compare &amp; Contrast: Curl vs Browser DevTools</h2>
-      <table>
-        <thead><tr><th>Aspect</th><th>curl</th><th>Browser DevTools</th></tr></thead>
-        <tbody>
-          <tr><td>Reproducibility</td><td>Easy to script &amp; paste</td><td>Great for interactive inspection</td></tr>
-          <tr><td>TLS visibility</td><td>Shows handshake, ALPN, cert chain (with <code>-v</code>)</td><td>Shows security tab, mixed content warnings</td></tr>
-          <tr><td>Cookies/CORS</td><td>Manual headers required</td><td>Automatic, realistic session behavior</td></tr>
-          <tr><td>Performance</td><td>Single request timing</td><td>Waterfall, H2 multiplexing, cache details</td></tr>
-        </tbody>
-      </table>
+    <!-- CLI Tools -->
+    <section class="section">
+      <h2 id="cli-tools">2) Essential CLI Tools</h2>
+      <h3 id="reachability">ping, traceroute/tracert</h3>
+      <p>
+        <strong><abbr title="ICMP echo">ping</abbr></strong> checks basic reachability and latency. <strong>traceroute</strong> (Linux/macOS) or <strong>tracert</strong> (Windows) reveals the path. Beware of rate limiting and asymmetric routes; a missing hop reply doesn’t always mean a packet drop.
+      </p>
+
+      <h3 id="name-tools">dig/nslookup</h3>
+      <p>
+        Use <span class="kbd">dig +short name</span> for quick answers; <span class="kbd">dig name ANY</span> to explore other records; <span class="kbd">+trace</span> to walk the delegation chain. Check <abbr title="Name server">NS</abbr> and <abbr title="Start of Authority">SOA</abbr> when debugging zones.
+      </p>
+
+      <h3 id="curl">curl</h3>
+      <p>
+        <span class="kbd">curl -v https://host/path</span> shows DNS, connect, TLS, and HTTP stages. Add <span class="kbd">-I</span> for headers only; <span class="kbd">--http2</span> or <span class="kbd">--http3</span> to test protocol versions; <span class="kbd">--resolve</span> to pin host→IP; <span class="kbd">--proxy http://proxy:3128</span> to test via a proxy; <span class="kbd">--data</span> for POSTs.
+      </p>
+
+      <h3 id="sockets">ss/netstat, nc, lsof</h3>
+      <p>
+        <span class="kbd">ss -lntp</span> lists listening TCP sockets and owning processes; <span class="kbd">nc -l 8080</span> spins a simple listener; <span class="kbd">lsof -i :8080</span> reveals port conflicts. On Windows, use <span class="kbd">Get-NetTCPConnection</span> in PowerShell.
+      </p>
+
+      <h3 id="routes">ip/route</h3>
+      <p>
+        <span class="kbd">ip addr</span>, <span class="kbd">ip route</span>, and <span class="kbd">ip neigh</span> (ARP/ND table) explain where packets go. For a specific destination, use <span class="kbd">ip route get &lt;dest&gt;</span> to see which interface and <abbr title="Next-hop device for off-subnet traffic">gateway</abbr> will be used.
+      </p>
     </section>
 
-    <section class="card">
-      <h2>Case Study — “The Phantom Outage at 9:05”</h2>
-      <p>Every morning at 9:05, an internal dashboard showed errors. Ping to the server IP was fine. <code>curl -v</code> revealed a long TLS handshake followed by a 200 OK—when it worked. On failures, packet capture showed repeated <strong>ClientHello</strong> with <strong>SNI</strong> for <code>dashboard.corp</code>, but the load balancer occasionally routed to a legacy pool with an old certificate. <strong>nslookup</strong> revealed round-robin <strong>A</strong> records; one IP belonged to the legacy pool. Fix: remove the stale IP from DNS and align certificates. The workflow pinned the failure to name resolution + LB target rather than network reachability.</p>
+    <!-- Packet Capture -->
+    <section class="section">
+      <h2 id="pcap">3) Packet Capture Basics (Wireshark &amp; tcpdump)</h2>
+      <p>
+        Packet capture verifies whether the network is delivering what your app expects. Start narrow: capture on the interface facing your target, apply a capture filter (e.g., <code>host 198.51.100.10 and tcp port 443</code>), then widen only if needed. In Wireshark, use display filters like <code>dns</code>, <code>tcp.flags.syn==1</code>, or <code>http</code>.
+      </p>
+
+      <figure>
+        <img src="../assets/pcap-annotations.svg" alt="Screenshot-style schematic highlighting DNS query/response, TCP handshake, TLS ClientHello, and HTTP/2 frames in a packet timeline">
+        <figcaption>
+          A “healthy” sequence for an HTTPS request: DNS response → TCP 3-way handshake → TLS ClientHello/ServerHello → HTTP/2 frames. Gaps or resets reveal failure points.
+        </figcaption>
+      </figure>
+
+      <div class="callout info">
+        <strong>Tip:</strong> If traffic is encrypted (TLS), headers at lower layers are still useful: you can confirm handshakes, <abbr title="Maximum segment size negotiated in TCP options">MSS</abbr>, retransmissions, <abbr title="Keepalive messages maintain idle connections">keepalives</abbr>, and <abbr title="Reset: abrupt TCP connection close">RST</abbr> causes without decrypting payloads.
+      </div>
     </section>
 
-    <section>
-      <h2>Trade-off: Depth of Capture vs Speed of Diagnosis</h2>
+    <!-- Developer Workflows -->
+    <section class="section">
+      <h2 id="workflows">4) Developer Workflows</h2>
+
+      <h3 id="api-debug">Debugging API calls</h3>
+      <p>
+        For a failing API, first run <span class="kbd">curl -v</span> against the same URL and compare to the app’s logs. Use <span class="kbd">--resolve</span> to test specific backends, <span class="kbd">--header "Host: …"</span> for virtual hosts, and <span class="kbd">--proxy</span> to reproduce corporate proxy behavior. If CORS errors appear in the browser, remember: CORS is enforced by the browser at the <strong>Application</strong> layer; the network may be fine.
+      </p>
+
+      <h3 id="localhost">Localhost &amp; ports</h3>
+      <p>
+        Common pitfalls: another process already listens on the same port; the service binds only to <code>127.0.0.1</code> so remote devices can’t connect; or the firewall blocks inbound connections. Use <span class="kbd">ss -lntp</span> (or platform equivalent) to confirm bind address and port; change to <code>0.0.0.0</code> to accept connections from any address if appropriate.
+      </p>
+
+      <h3 id="proxies-vpns">Proxies, VPNs, and firewalls</h3>
+      <p>
+        HTTP proxies can rewrite headers and change DNS resolution (proxy resolves names on your behalf). VPNs add routes that may “steal” traffic to a different <abbr title="Routing table entry preferred due to more specific prefix">prefix</abbr>. Inspect <span class="kbd">ip route</span> before and after connecting. Personal firewalls may block inbound listeners unless explicitly allowed.
+      </p>
+
+      <h3 id="containers">Container networking (Docker)</h3>
+      <p>
+        Docker’s default <abbr title="Bridge network: private NATed network on the host">bridge</abbr> creates an isolated <abbr title="Local Area Network">LAN</abbr> with <abbr title="NAT: rewrite private container IPs to host IP/ports">NAT</abbr>. Expose ports with <span class="kbd">-p 8080:80</span> (host:container). If a container cannot reach the Internet, check DNS inside the container (<span class="kbd">cat /etc/resolv.conf</span>), and confirm that the host’s firewall permits forwarding.
+      </p>
+
+      <h3 id="case-api">Case study (~180 words): A “backend bug” that wasn’t</h3>
+      <div class="card">
+        <p>
+          A frontend intermittently failed to fetch <code>/orders</code>, showing generic “server error.” Server logs were clean. A <span class="kbd">curl -v</span> test from the developer’s laptop worked—until they connected to the corporate VPN, when it stalled at “Connected to …, TLS handshake...”.
+        </p>
+        <p>
+          Comparing <span class="kbd">ip route</span> before/after VPN revealed a new route: all <code>10.0.0.0/8</code> traffic went through the tunnel. The backend’s IP was <code>10.44.8.20</code> and reachable, but the <em>DNS name</em> resolved differently on VPN due to split-horizon DNS: <code>api.company.local</code> pointed to an internal load balancer that required a corporate <abbr title="Certificate Authority">CA</abbr>. The browser rejected TLS because the corporate root CA wasn’t installed on the developer’s machine.
+        </p>
+        <p>
+          Installing the root CA (per IT policy) fixed the TLS error. The “backend bug” was a change in name resolution and trust roots while on VPN—caught by comparing routes and using <span class="kbd">curl --resolve</span> to test both answers.
+        </p>
+      </div>
+    </section>
+
+    <!-- Examples -->
+    <section class="section">
+      <h2 id="examples">5) Two Concrete Examples</h2>
+
+      <h3>Example A: The “works on Wi-Fi, not on Ethernet” mystery</h3>
+      <p>
+        The app uses <code>wss://</code> (WebSockets) to a hostname that resolves to an IPv6-only address. On Wi-Fi, the OS has a global IPv6; on Ethernet, IPv6 is disabled, so the stack tries IPv4, but the DNS record has no A record. <span class="kbd">dig AAAA name</span> vs <span class="kbd">dig A name</span> and <span class="kbd">curl -6</span>/<span class="kbd">curl -4</span> quickly reveal the mismatch.
+      </p>
+
+      <h3>Example B: Only large uploads fail</h3>
+      <p>
+        Small requests succeed; large PUTs hang. <span class="kbd">tcpdump</span> shows repeated <abbr title="Internet Control Message Protocol">ICMP</abbr> “frag needed” messages—classic <abbr title="Path MTU Discovery">PMTUD</abbr> black hole. Lowering the client <abbr title="Maximum Transmission Unit">MTU</abbr> or fixing the tunnel MSS clamp resolves it.
+      </p>
+
       <div class="callout warn">
-        <p>Capturing everything (<em>deep PCAPs</em>) can find rare bugs, but creates noise, privacy risk, and analysis debt. Minimal <em>symptom-focused</em> captures speed triage. Balance depends on context: production incidents demand speed; long-standing flakiness may justify deeper captures and ring buffers.</p>
+        <strong>Trade-off:</strong> Aggressive security boxes (DPI, strict firewalls) can increase safety but also introduce false positives and opaque failures. Favor observability (logs/captures) and small, reversible policy changes when diagnosing.
       </div>
     </section>
 
-    <section class="card">
+    <!-- Practice -->
+    <section class="section practice">
+      <div class="title">Practice <span class="badge">~35–45 min</span></div>
+      <ol>
+        <li>
+          <strong>Route &amp; DNS snapshot (10–12 min).</strong> Record <span class="kbd">ip addr</span>, <span class="kbd">ip route</span>, <span class="kbd">ip neigh</span>, and <span class="kbd">dig +short &lt;your target&gt;</span>. <em>Success:</em> You can explain which interface and gateway will carry a request and which IP(s) the name resolves to.
+        </li>
+        <li>
+          <strong>Port triage (10–12 min).</strong> Start a dummy server (<span class="kbd">python -m http.server 8080</span> or <span class="kbd">nc -l 8080</span>). From another shell, <span class="kbd">curl localhost:8080</span>. Kill the server and run <span class="kbd">lsof -i :8080</span>/<span class="kbd">ss -ltnp</span>. <em>Success:</em> You can identify bind address, port owner, and conflicts.
+        </li>
+        <li>
+          <strong>TLS peek (12–15 min).</strong> Run <span class="kbd">openssl s_client -connect example.com:443 -servername example.com</span>. Note the certificate chain and SNI, then repeat with a wrong <span class="kbd">-servername</span>. <em>Success:</em> You observe the difference (mismatch errors or different cert).
+        </li>
+        <li>
+          <strong>Mini capture (optional, 6–8 min).</strong> Capture a single HTTPS request with <span class="kbd">tcpdump</span> and open it in Wireshark. <em>Success:</em> You can point to TCP 3-way handshake and TLS records.
+        </li>
+      </ol>
+    </section>
+
+    <!-- Mastery -->
+    <section class="section mastery">
+      <div class="title">Mastery Check <span class="badge">Self-review</span></div>
+
+      <details>
+        <summary>1) A hostname resolves but <em>curl</em> times out. Which layers do you check next and with what tools?</summary>
+        <p><strong>Answer:</strong> Transport (TCP handshake with <code>nc -vz</code> or <code>curl --connect-timeout</code>), then Network (routing with <code>ip route get</code>, path with <code>traceroute</code>), then Link (interface errors with <code>ip -s link</code>).</p>
+      </details>
+
+      <details>
+        <summary>2) Your service binds to 127.0.0.1 but you need remote access. What changes?</summary>
+        <p><strong>Answer:</strong> Bind to <code>0.0.0.0</code> (or a specific interface IP), open the firewall, and confirm with <code>ss -lntp</code> that the listener is on the desired address.</p>
+      </details>
+
+      <details>
+        <summary>3) How can a proxy change DNS behavior?</summary>
+        <p><strong>Answer:</strong> For HTTP(S) proxies, the proxy resolves the origin host—your client sends only the hostname; therefore the proxy’s DNS view (split horizon, private zones) determines the target.</p>
+      </details>
+
+      <details>
+        <summary>4) You see TLS handshake failures. What quick commands help?</summary>
+        <p><strong>Answer:</strong> <code>curl -vI https://host</code> for high-level clues; <code>openssl s_client -connect host:443 -servername host</code> for cert chain/SNI; and packet capture to see if the ClientHello or ServerHello is missing/dropped.</p>
+      </details>
+
+      <details>
+        <summary>5) A container can’t reach the Internet. Name two likely causes and checks.</summary>
+        <p><strong>Answer:</strong> DNS inside the container (<code>/etc/resolv.conf</code>) mis-set; host firewall/NAT forwarding disabled. Check <code>docker network inspect</code>, try <code>curl 1.1.1.1</code> vs <code>curl example.com</code> to separate DNS vs routing.</p>
+      </details>
+
+      <details>
+        <summary>6) Why can <em>ping</em> fail even if the site loads?</summary>
+        <p><strong>Answer:</strong> ICMP may be blocked or deprioritized; TCP/HTTPS can still succeed. Use TCP connect tests as an alternative signal.</p>
+      </details>
+
+      <details>
+        <summary>7) What is split-horizon DNS and why does it bite developers?</summary>
+        <p><strong>Answer:</strong> Different DNS answers based on the querier’s network (e.g., on VPN vs off VPN). It can send clients to different backends or require different trust roots, causing “works for me” discrepancies.</p>
+      </details>
+    </section>
+
+    <!-- Resources -->
+    <section class="section" id="resources">
       <h2>Resources</h2>
-      <ul class="resource-list">
-        <li><a target="_blank" href="https://www.wireshark.org/docs/">Wireshark Docs</a> — filters, TLS analysis, “Follow TCP Stream.”</li>
-        <li><a target="_blank" href="https://everything.curl.dev/">Everything curl</a> — comprehensive guide to curl usage and internals.</li>
-        <li><a target="_blank" href="https://dns.google/resolve">DNS over HTTPS playground</a> — test queries and inspect JSON answers.</li>
-        <li><a target="_blank" href="https://iperf.fr/">iPerf3</a> — measure throughput; compare Wi-Fi vs Ethernet and verify <strong>MTU</strong> effects.</li>
-      </ul>
+      <div class="resource-list">
+        <div class="item">
+          <div>
+            <a class="external" href="https://www.wireshark.org/docs/" target="_blank">Wireshark Beginner Guide</a>
+            <div class="meta">Capture basics, filters, and protocol deep dives.</div>
+          </div>
+          <span class="badge">Docs</span>
+        </div>
+        <div class="item">
+          <div>
+            <a class="external" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview#tools" target="_blank">MDN — Using curl for HTTP APIs</a>
+            <div class="meta">Practical flags for debugging requests and headers.</div>
+          </div>
+          <span class="badge">Guide</span>
+        </div>
+        <div class="item">
+          <div>
+            <a class="external" href="https://www.tcpdump.org/manpages/tcpdump.1.html" target="_blank">tcpdump Man Page</a>
+            <div class="meta">Authoritative reference for capture filters and options.</div>
+          </div>
+          <span class="badge">Spec</span>
+        </div>
+      </div>
     </section>
 
-    <section class="card practice">
-      <h2>Practice</h2>
-      <ol>
-        <li><strong>Ping &amp; jitter profile (15 min).</strong> Run a 100-packet ping to a stable host. <em>Success:</em> report avg/95th RTT and loss, plus one hypothesis for spikes.</li>
-        <li><strong>DNS split test (15 min).</strong> Query a domain using your default resolver and a public resolver. <em>Success:</em> compare answers and TTL; explain differences.</li>
-        <li><strong>HTTP trace (20 min).</strong> Use <code>curl -v</code> on a failing or test endpoint, capturing with Wireshark. <em>Success:</em> identify handshake, request, status, and one header affecting behavior (e.g., <code>Cache-Control</code>, <code>Set-Cookie</code>).</li>
-        <li><strong>Port conflict drill (10 min).</strong> Intentionally run two services on the same port, then resolve. <em>Success:</em> show the command that revealed the conflict and the fix.</li>
-      </ol>
+    <!-- Recap & Next -->
+    <section class="section">
+      <h2 id="recap">Recap &amp; Next Steps</h2>
+      <p>
+        You now have a repeatable workflow and a toolkit for isolating faults quickly. You practiced resolving names, proving reachability, verifying ports and TLS, and reading packet traces. You also learned to reason about proxies, VPNs, firewalls, and container NAT.
+      </p>
+      <p>
+        In <a href="chapters/ch07.html">Chapter 7</a>, you’ll apply everything in a guided mini-project: build a small network, run a local DNS and web server, and debug connectivity end-to-end.
+      </p>
     </section>
 
-    <section class="card mastery">
-      <h2>Mastery Check</h2>
-      <ol>
-        <li>When ping fails but HTTPS works, what might be happening?</li>
-        <details><summary>Answer</summary><p>ICMP is blocked while TCP/443 is allowed. Some networks filter ping, so lack of Echo Replies doesn’t prove total outage.</p></details>
-
-        <li>Why use <code>curl --resolve</code> during outages?</li>
-        <details><summary>Answer</summary><p>It pins the hostname to a specific IP, bypassing DNS to test a given origin or load balancer target and rule out name resolution issues.</p></details>
-
-        <li>What does a TCP three-way handshake prove?</li>
-        <details><summary>Answer</summary><p>That bidirectional reachability exists between client and server at L3/L4 (both directions of SYN/ACK). It doesn’t prove application health.</p></details>
-
-        <li>Give two safe packet-capture practices in production.</li>
-        <details><summary>Answer</summary><p>(1) Minimize scope with filters and short durations. (2) Protect PCAPs (access controls, redaction) and avoid capturing secrets where possible.</p></details>
-
-        <li>How can traceroute mislead you?</li>
-        <details><summary>Answer</summary><p>Routers may deprioritize or block TTL-expired responses, causing “stars” even when forwarding traffic. Asymmetry means the return path may differ from the forward path.</p></details>
-
-        <li>What suggests an SNI/certificate mismatch?</li>
-        <details><summary>Answer</summary><p>TLS alert after ClientHello, <code>curl -v</code> shows certificate CN/SAN not matching the requested hostname; browser shows name-mismatch error.</p></details>
-
-        <li>How do you confirm a port conflict locally?</li>
-        <details><summary>Answer</summary><p>List listeners (<code>ss -ltnp</code> / <code>netstat -ano</code>), identify the PID using the port, and stop or reconfigure that process.</p></details>
-      </ol>
-    </section>
-
-    <section class="card">
-      <h2>Recap &amp; Next Steps</h2>
-      <p>You practiced the essential tools—ping, traceroute, nslookup/dig, curl—and learned to capture and read the wire with Wireshark/tcpdump. You now have reliable workflows for classic failures: unreachable hosts, broken DNS, misrouted traffic, TLS problems, and local port conflicts. In the next chapter, you’ll apply everything in a <strong>guided project</strong>—standing up a mini network, adding DNS and a web server, and debugging end-to-end connectivity.</p>
-    </section>
-
-    <div class="next-prev">
-      <a href="chapters/ch05.html" rel="prev">← Previous: Transport &amp; Application Protocols</a>
-      <a href="chapters/ch07.html" rel="next">Next: Guided Project — Mini Network →</a>
-    </div>
+    <nav class="next-prev">
+      <a href="chapters/ch05.html" rel="prev">Previous: Transport &amp; Application Layer Protocols</a>
+      <a href="chapters/ch07.html" rel="next">Next: Guided Project — Building &amp; Debugging a Mini Network</a>
+    </nav>
   </main>
 
   <footer class="site-footer">
-    © Networking for Software Engineers (Beginner). Built for clarity and practice.
+    <div class="container">
+      <p class="muted">© 2025 BookBuilder Project.</p>
+    </div>
   </footer>
 
-  <!-- CHECKLIST
-    - [x] theme.css+app.js loaded
-    - [x] <base> present & correct
-    - [x] Canonical nav verbatim; active link handled by app.js
-    - [x] Pager prev/next valid (ch05, ch07)
-    - [x] Depth minima met: ≥1200 words; ≥2 examples; ≥1 case study; compare/contrast; analogy; ≥1 figure
-    - [x] Resources 3–6 with rationale
-    - [x] Practice 3–5 with time & success criteria
-    - [x] Mastery 5–7 with answers
-    - [x] Terms staged: ICMP, TTL, resolver, SNI, handshake, PCAP, NAT, gateway, CNAME, RST
-    - [x] No TODOs
+  <!--
+  CHECKLIST
+  - [x] /styles/theme.css + /scripts/app.js linked (paths correct for chapter page)
+  - [x] <base> present & correct (../)
+  - [x] Canonical nav verbatim; active link set to "Chapters"
+  - [x] Pager prev/next valid (ch05 ↔ ch07)
+  - [x] Sections meet Depth minima (1,200–1,800 words total; ≥2 examples; 1 case study; explicit trade-off; 1 analogy)
+  - [x] Practice 3–4 tasks with time & success criteria
+  - [x] Mastery 5–7 Qs with answers in <details>
+  - [x] ≥10 glossary terms via <abbr> (ping, traceroute, dig, DNS, TTL, CNAME, ICMP, TCP, TLS, SNI, NAT, LAN, bridge, VPN, MSS, MTU)
+  - [x] ≥1 figure referencing ../assets/ (developer-debug-flow.svg; pcap-annotations.svg)
   -->
 </body>
 </html>

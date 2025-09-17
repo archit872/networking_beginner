@@ -1,175 +1,321 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Chapter 3 — The OSI and TCP/IP Models</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Understand the OSI and TCP/IP networking models, layering and abstraction, and how real-world applications map to them." />
+  <meta charset="utf-8">
   <base href="../">
-  <link rel="stylesheet" href="styles/theme.css" />
-  <script defer src="scripts/app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 3 — The OSI and TCP/IP Models</title>
+  <meta name="description" content="Compare OSI’s seven layers with the four-layer TCP/IP model. Learn layering, abstraction, and how real developer workflows map to each layer. Includes examples, a case study, practice, and mastery check.">
+  <meta property="og:title" content="Chapter 3 — The OSI and TCP/IP Models">
+  <meta property="og:description" content="Layering and abstraction for developers: OSI vs TCP/IP, real mappings, encapsulation journey, pitfalls, and trade-offs.">
+  <meta property="og:type" content="article">
+  <meta name="theme-color" content="#0b0f14">
+
+  <link rel="stylesheet" href="styles/theme.css">
+  <script src="scripts/app.js" defer></script>
 </head>
 <body>
-  <!-- Canonical Nav -->
-  <nav class="app-nav" data-open="false">
-    <div class="wrap">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Canonical Nav (verbatim across all pages). Only aria-current differs per page. -->
+  <nav class="app-nav" aria-label="Primary">
+    <div class="container inner">
       <div class="brand">Networking for Software Engineers</div>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="app-menu">Menu</button>
-      <div id="app-menu" class="menu toc-scroller" role="navigation" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a href="chapters/ch01.html" aria-current="page">Chapters</a>
-        <a href="chapters/appendix.html">Appendix</a>
-        <a href="chapters/glossary.html">Glossary</a>
+      <button class="toggle js-nav-toggle" aria-expanded="false" aria-controls="top-menu" aria-label="Toggle navigation">
+        ☰ Menu
+      </button>
+      <div id="top-menu" class="menu" role="menubar">
+        <a href="index.html" role="menuitem">Home</a>
+        <a href="chapters/ch01.html" aria-current="page" role="menuitem">Chapters</a>
+        <a href="chapters/appendix.html" role="menuitem">Appendix</a>
+        <a href="chapters/glossary.html" role="menuitem">Glossary</a>
       </div>
     </div>
   </nav>
 
-  <main class="container">
-    <header class="page-hero">
-      <span class="badge">Chapter 3</span>
+  <header class="page-hero">
+    <div class="container">
+      <div class="meta">
+        <span class="badge badge-primary">Beginner</span>
+        <span class="badge">Chapter 3</span>
+        <span class="badge">Estimated time: 60–75 min</span>
+      </div>
       <h1>The OSI and TCP/IP Models</h1>
-      <p class="muted">Layering is the mental model that makes global networking possible. Learn how the OSI and TCP/IP models compare and how to map developer tasks across layers.</p>
-    </header>
+      <p class="abstract">
+        Layering is the engineer’s trick for taming complexity. This chapter compares the seven-layer <abbr title="Open Systems Interconnection">OSI</abbr> model with the four-layer TCP/IP model, shows how real-world protocols map to each, and walks through an end-to-end message from an application down to the wire and back. You’ll learn where to look when things go wrong and how abstraction speeds up debugging.
+      </p>
+    </div>
+  </header>
 
+  <main id="main" class="container section">
+    <!-- Objectives -->
     <section class="card">
-      <h2>Objectives</h2>
+      <h2 id="objectives">Objectives</h2>
       <ul>
-        <li>Compare the <strong>OSI seven-layer model</strong> and the <strong>TCP/IP four-layer model</strong>.</li>
-        <li>Understand why <strong>layering</strong> and <strong>abstraction</strong> simplify networking design and debugging.</li>
-        <li>Practice mapping everyday developer tasks to specific layers.</li>
+        <li>Explain the purpose of layering and the difference between OSI and TCP/IP models.</li>
+        <li>Map common protocols (HTTP, TLS, DNS, TCP/UDP, IP, Ethernet/Wi-Fi) to their layers.</li>
+        <li>Trace a message through encapsulation and decapsulation, and identify likely failure points.</li>
       </ul>
     </section>
 
-    <section>
-      <h2>1) OSI Seven Layers</h2>
-      <p>The <strong>OSI model</strong> (Open Systems Interconnection) was developed as a universal framework to describe how different networking protocols interact. It defines <strong>seven layers</strong>:</p>
-      <ol>
-        <li><strong>Physical</strong> — signals, media, cabling, radio waves.</li>
-        <li><strong>Data Link</strong> — frames, MAC addresses, switches, Wi-Fi APs.</li>
-        <li><strong>Network</strong> — logical addressing, IP, routers.</li>
-        <li><strong>Transport</strong> — TCP/UDP segments, reliability, flow control.</li>
-        <li><strong>Session</strong> — dialog management, checkpoints (rarely visible today).</li>
-        <li><strong>Presentation</strong> — syntax, encryption, compression.</li>
-        <li><strong>Application</strong> — HTTP, DNS, SMTP, developer-visible protocols.</li>
-      </ol>
-      <p>Engineers often memorize these layers using mnemonics like: <em>Please Do Not Throw Sausage Pizza Away</em>. While not all layers map directly to modern Internet practice, the model is a useful teaching tool.</p>
+    <!-- OSI Model -->
+    <section class="section">
+      <h2 id="osi">1) OSI’s Seven Layers</h2>
+      <p>
+        The OSI model is a conceptual framework that divides communication into seven layers: <strong>Physical</strong>, <strong>Data Link</strong>, <strong>Network</strong>, <strong>Transport</strong>, <strong>Session</strong>, <strong>Presentation</strong>, and <strong>Application</strong>. It provides vocabulary and separation of concerns so different teams and vendors can interoperate.
+      </p>
+      <h3 id="mnemonics">Mnemonics &amp; analogies</h3>
+      <p>
+        A classic mnemonic is “<em>Please Do Not Throw Sausage Pizza Away</em>.” Think of a package delivery service: the <strong>Physical</strong> layer is the road; <strong>Data Link</strong> is the local street rules and house numbers (<strong><abbr title="Media Access Control">MAC</abbr></strong>); <strong>Network</strong> is the intercity routing with <strong><abbr title="Internet Protocol">IP</abbr></strong> addresses; <strong>Transport</strong> ensures the boxes arrive complete and in order (<strong><abbr title="Transmission Control Protocol">TCP</abbr></strong>) or just “fire and forget” (<strong><abbr title="User Datagram Protocol">UDP</abbr></strong>). The upper layers (<strong>Session</strong>, <strong>Presentation</strong>, <strong>Application</strong>) define conversations, data formats (e.g., <abbr title="JavaScript Object Notation">JSON</abbr>, <abbr title="Transport Layer Security">TLS</abbr>), and meanings (HTTP, DNS, SMTP).
+      </p>
 
-      <figure>
-        <img src="assets/fig03-osi-model.svg" alt="Diagram of the OSI seven-layer model" />
-        <figcaption>The OSI model’s seven layers: Physical up to Application. Each adds services to the one above.</figcaption>
-      </figure>
-    </section>
-
-    <section>
-      <h2>2) TCP/IP Model</h2>
-      <p>The Internet, however, evolved around the simpler <strong>TCP/IP model</strong>. It has four layers:</p>
+      <h3 id="real-world-mappings">Real-world mappings</h3>
       <ul>
-        <li><strong>Link</strong> — combines physical + data link concerns (Ethernet, Wi-Fi).</li>
-        <li><strong>Internet</strong> — IP addressing and routing.</li>
-        <li><strong>Transport</strong> — TCP/UDP providing end-to-end delivery.</li>
-        <li><strong>Application</strong> — protocols like HTTP, DNS, SMTP.</li>
-      </ul>
-      <p>Unlike OSI, the TCP/IP model was created from real-world implementations, not theory. Its strength is practicality: every Internet packet today follows these four layers.</p>
-    </section>
-
-    <section>
-      <h2>3) Mapping Between Models</h2>
-      <p>Many textbooks show a mapping: OSI’s Physical + Data Link ≈ TCP/IP Link; OSI’s Network ≈ Internet; OSI’s Transport ≈ Transport; and OSI’s Session + Presentation + Application ≈ Application. The mismatch is why OSI remains a teaching aid while TCP/IP is the operational reality.</p>
-      <p>Example: Sending an email with an attachment.</p>
-      <ul>
-        <li><strong>Application layer</strong>: SMTP formats the email and attachment.</li>
-        <li><strong>Transport layer</strong>: TCP ensures reliable byte streams between client and server.</li>
-        <li><strong>Internet layer</strong>: IP addresses route the message across networks.</li>
-        <li><strong>Link layer</strong>: Ethernet/Wi-Fi deliver frames locally at each hop.</li>
+        <li><strong>Layer 1 — Physical:</strong> electrical/optical/radio signaling; cables, fiber, radio channels, bit timing.</li>
+        <li><strong>Layer 2 — Data Link:</strong> <abbr title="Ethernet framing and switching">Ethernet</abbr>, <abbr title="IEEE 802.11 wireless LAN">Wi-Fi</abbr>; frames, <abbr title="Cyclic Redundancy Check">CRC</abbr>, <abbr title="Virtual LAN tagging standard">802.1Q VLAN</abbr>.</li>
+        <li><strong>Layer 3 — Network:</strong> IP, <abbr title="Address Resolution Protocol">ARP</abbr>, <abbr title="Internet Control Message Protocol">ICMP</abbr>, routing and <abbr title="Default route used when no specific route matches">default gateway</abbr>.</li>
+        <li><strong>Layer 4 — Transport:</strong> TCP, UDP; ports, reliability, congestion control.</li>
+        <li><strong>Layer 5 — Session:</strong> conversations, state, and re-establishment (often merged into apps in practice).</li>
+        <li><strong>Layer 6 — Presentation:</strong> data representation and security like TLS, compression, serialization (JSON, Protobuf).</li>
+        <li><strong>Layer 7 — Application:</strong> HTTP(S), DNS, SMTP/IMAP, database wire protocols.</li>
       </ul>
 
-      <div class="callout success">
-        <strong>Analogy:</strong> Think of a multi-leg journey. Taxi to the airport (link layer), airline routes (network layer), reserved seat and ticketing rules (transport layer), and your specific purpose for travel (application layer).
+      <div class="callout info">
+        <strong>Reality check:</strong> OSI is descriptive, not prescriptive. Real stacks collapse or split layers. For example, TLS is sometimes called “Layer 6½” because it sits between Transport and Application concerns.
       </div>
     </section>
 
-    <section class="card">
-      <h2>Compare & Contrast: OSI vs TCP/IP</h2>
+    <!-- TCP/IP Model -->
+    <section class="section">
+      <h2 id="tcpip">2) TCP/IP’s Four Layers</h2>
+      <p>
+        The Internet stack condenses concerns into four layers: <strong>Link</strong>, <strong>Internet</strong>, <strong>Transport</strong>, and <strong>Application</strong>. It mirrors how devices actually speak on the Internet: move frames on the local link, route packets globally, exchange segments/datagrams end-to-end, and implement application semantics.
+      </p>
+      <ul>
+        <li><strong>Link:</strong> Ethernet, Wi-Fi, point-to-point links; <abbr title="Media Access Control address">MAC</abbr>s, MTU, ARP, FCS.</li>
+        <li><strong>Internet:</strong> IP addressing and routing, <abbr title="Internet Control Message Protocol">ICMP</abbr>, fragmentation, <abbr title="Path MTU Discovery">PMTUD</abbr>.</li>
+        <li><strong>Transport:</strong> TCP (reliability, flow/congestion control, ports), UDP (stateless datagrams), <abbr title="User Datagram Protocol-based protocols for real-time media">RTP</abbr> on UDP.</li>
+        <li><strong>Application:</strong> HTTP/2–HTTP/3, DNS, SMTP/IMAP/POP3, custom RPC over TCP/UDP/QUIC.</li>
+      </ul>
+
+      <div class="callout warn">
+        <strong>Trade-off:</strong> Fewer layers simplify implementation and performance tuning, but you lose some analytical granularity. When debugging, you may need to mentally “expand” the TCP/IP model into OSI-like concerns (e.g., differentiate presentation vs application responsibilities).
+      </div>
+    </section>
+
+    <!-- Mapping Between Models -->
+    <section class="section">
+      <h2 id="mapping">3) Mapping Between Models</h2>
+      <p>
+        A practical mapping places Ethernet/Wi-Fi at OSI 1–2 ↔ TCP/IP Link; IP/ICMP/ARP at OSI 3 ↔ TCP/IP Internet; TCP/UDP at OSI 4 ↔ TCP/IP Transport; and everything from DNS to HTTP, TLS, and data formats at OSI 5–7 ↔ TCP/IP Application. This mapping helps you pick the right tool: if DNS fails, check Application; if routes look wrong, check Network; if only Wi-Fi is flaky, check Link/Physical.
+      </p>
+
+      <figure>
+        <img src="../assets/osi-tcpip-map.svg" alt="Side-by-side diagram mapping OSI's 7 layers to TCP/IP's 4 layers with example protocols at each layer">
+        <figcaption>
+          OSI ↔ TCP/IP mapping with example protocols. Use it as a mental map: start at the Application and work down until you find the first layer that fails, then fix from there upward.
+        </figcaption>
+      </figure>
+
+      <h3 id="email-example">Example: sending an email (encapsulation journey)</h3>
+      <p>
+        Your mail client composes a message (<strong>Application</strong>) and negotiates <abbr title="Transport Layer Security">TLS</abbr> presentation. It uses <strong>TCP</strong> (<strong>Transport</strong>) on port 587 to speak <abbr title="Simple Mail Transfer Protocol">SMTP</abbr>. The operating system wraps the TCP segment in an <strong>IP</strong> packet (<strong>Network/Internet</strong>) addressed to the mail server. The network interface encapsulates this into an <strong>Ethernet</strong>/<strong>Wi-Fi</strong> frame (<strong>Data Link/Link</strong>) with source/destination MACs and sends it over the <strong>Physical</strong> medium. Each router removes the link frame, examines IP headers, and re-frames onto the next link. At the server, decapsulation reverses the process.
+      </p>
+
+      <h3 id="web-example">Example: a web request over HTTPS</h3>
+      <p>
+        A browser resolves a name via <abbr title="Domain Name System">DNS</abbr> (Application), establishes a TCP connection (Transport), upgrades to TLS (Presentation/Application boundary), and exchanges HTTP requests (Application). A congestion spike at <abbr title="Transmission Control Protocol">TCP</abbr> can throttle performance even if DNS is perfect; a stale <abbr title="Address Resolution Protocol">ARP</abbr> cache at the Link layer can stall the first packet even if routing is fine. Thinking in layers narrows the search.
+      </p>
+    </section>
+
+    <!-- Where layers fail -->
+    <section class="section">
+      <h2 id="failures">4) Where Layers Fail (and Tools to Use)</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>Symptoms → Suspect Layer</h3>
+          <ul>
+            <li><strong>“Host not found”</strong> → Application (DNS resolution).</li>
+            <li><strong>“Connection refused”</strong> → Transport (port closed) or Application (service down).</li>
+            <li><strong>“No route to host”</strong> → Network/Internet (routing, gateway).</li>
+            <li><strong>“Works on Ethernet, not Wi-Fi”</strong> → Link/Physical (interference, power save).</li>
+            <li><strong>“Large payloads hang”</strong> → Internet/Transport (MTU, fragmentation, PMTUD).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Tools by Layer</h3>
+          <ul>
+            <li><strong>Application:</strong> <code>curl</code>, app logs, <code>dig</code>/<code>nslookup</code>.</li>
+            <li><strong>Transport:</strong> <code>ss</code>/<code>netstat</code>, <code>telnet</code>/<code>nc</code>, TCP flags in packet captures.</li>
+            <li><strong>Network:</strong> <code>ip route</code>/<code>route</code>, <code>traceroute</code>, <abbr title="Internet Control Message Protocol">ICMP</abbr> diagnostics.</li>
+            <li><strong>Link:</strong> <code>ip -s link</code>, <code>wifi</code> utilities, driver stats, ARP table.</li>
+            <li><strong>Physical:</strong> cable continuity, signal strength, channel scans.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout success">
+        <strong>Debugging habit:</strong> Start at the top (can the app resolve a name?), then go down until you find the first failing layer. Fix there and re-test upward—this prevents chasing symptoms.
+      </div>
+    </section>
+
+    <!-- Case Study -->
+    <section class="section">
+      <h2 id="case-study">5) Case Study (~200 words): TLS handshake timeouts</h2>
+      <div class="card">
+        <p>
+          A team rolled out a service that quietly started timing out during TLS handshakes. DNS was healthy and TCP SYN/SYN-ACK looked fine, but the ClientHello never elicited a ServerHello. Engineers suspected certificate issues, but logs showed no handshake events on the server. Packet captures at the client displayed retransmissions of the ClientHello with increasing backoff.
+        </p>
+        <p>
+          Capturing on an intermediate firewall revealed the truth: a deep packet inspection (DPI) rule classified large TLS ClientHello messages—bloated by many <abbr title="Transport Layer Security">TLS</abbr> extensions and cipher suites—as “anomalous” and dropped them. The system “worked” for some users because their clients negotiated smaller hellos. Reducing advertised cipher suites (Application/Presentation concern) fixed the immediate problem; a policy change on the firewall (Network boundary) provided the durable fix.
+        </p>
+        <p>
+          The layered lens mattered: Transport wasn’t the issue (TCP was established). The failure was between Presentation and Network—an interaction not obvious without mapping behavior to layers and observing where packets disappeared.
+        </p>
+      </div>
+    </section>
+
+    <!-- Compare & Contrast -->
+    <section class="section">
+      <h2 id="compare">6) Compare &amp; Contrast: OSI vs TCP/IP</h2>
       <table>
         <thead>
-          <tr><th>Feature</th><th>OSI</th><th>TCP/IP</th></tr>
+          <tr><th>Aspect</th><th>OSI (7 layers)</th><th>TCP/IP (4 layers)</th></tr>
         </thead>
         <tbody>
-          <tr><td>Origin</td><td>Theoretical, ISO standard</td><td>Practical, DARPA project</td></tr>
-          <tr><td>Layers</td><td>Seven</td><td>Four</td></tr>
-          <tr><td>Use</td><td>Teaching, design concepts</td><td>Implemented in Internet today</td></tr>
-          <tr><td>Granularity</td><td>Finer distinctions (session, presentation)</td><td>Broad categories, pragmatic</td></tr>
+          <tr>
+            <td>Purpose</td>
+            <td>Teaching &amp; vendor-agnostic design vocabulary.</td>
+            <td>Pragmatic Internet implementation.</td>
+          </tr>
+          <tr>
+            <td>Upper layers</td>
+            <td>Session, Presentation, Application are distinct.</td>
+            <td>Collapsed into Application; apps own session/format.</td>
+          </tr>
+          <tr>
+            <td>Security placement</td>
+            <td>Presentation (e.g., TLS) separate from Application.</td>
+            <td>Commonly treated as part of Application boundary.</td>
+          </tr>
+          <tr>
+            <td>Debugging granularity</td>
+            <td>High (fine-grained mental checkpoints).</td>
+            <td>Moderate (fewer buckets; faster to classify).</td>
+          </tr>
         </tbody>
       </table>
+      <div class="callout warn">
+        <strong>Design trade-off:</strong> OSI’s detail helps learning and root cause analysis; TCP/IP’s simplicity matches how stacks are built. Use both: design with TCP/IP’s pragmatism, diagnose with OSI’s precision.
+      </div>
     </section>
 
-    <section class="card">
-      <h2>Case Study: Debugging “Layer 4 or Layer 7?”</h2>
-      <p>A dev team built a microservice API. Calls occasionally failed with “connection reset by peer.” Some engineers blamed the application code (Layer 7), others suspected the transport layer (Layer 4). Packet captures showed TCP <abbr title="Reset flag in a TCP packet">RST</abbr> packets. It turned out the server’s reverse proxy had a short idle timeout. Understanding layers helped: the reset came from transport, triggered by application-layer policy. The fix: increase timeout configuration. Without layers, debugging would have been guesswork.</p>
+    <!-- Practice -->
+    <section class="section practice">
+      <div class="title">Practice <span class="badge">~25–35 min</span></div>
+      <ol>
+        <li><strong>Layer match (10–12 min).</strong> For each item—DNS query, TLS handshake, ICMP echo, ARP who-has, HTTP 200 OK—assign the primary layer(s) in <em>both</em> models. <em>Success:</em> you can justify each mapping in a sentence.</li>
+        <li><strong>Encapsulation trace (10–12 min).</strong> Capture a single HTTPS request with Wireshark. Label the frame, IP packet, TCP segment, TLS record, and HTTP request. <em>Success:</em> you can point to at least one header field at each layer.</li>
+        <li><strong>Failure localization (5–8 min).</strong> Given “Works on Ethernet, fails on Wi-Fi,” list three Link/Physical hypotheses and tests (e.g., channel interference, power save, ARP cache). <em>Success:</em> at least one test isolates the layer conclusively.</li>
+      </ol>
     </section>
 
-    <section>
+    <!-- Mastery -->
+    <section class="section mastery">
+      <div class="title">Mastery Check <span class="badge">Self-review</span></div>
+
+      <details>
+        <summary>1) Why do we use layered models at all?</summary>
+        <p><strong>Answer:</strong> Layers separate concerns so teams can iterate independently, swap components, and reason locally about failures; they also give a common vocabulary for design and debugging.</p>
+      </details>
+
+      <details>
+        <summary>2) Map TLS and HTTP to OSI and TCP/IP.</summary>
+        <p><strong>Answer:</strong> TLS sits at OSI Presentation (between Transport and Application) and at the Application boundary in TCP/IP; HTTP is OSI Application and TCP/IP Application.</p>
+      </details>
+
+      <details>
+        <summary>3) A host can ping an IP but cannot resolve a hostname. Which layer is failing?</summary>
+        <p><strong>Answer:</strong> Application (DNS). Network/Transport are fine because ICMP (Network) works and implies basic IP reachability.</p>
+      </details>
+
+      <details>
+        <summary>4) What’s the relationship between ARP and IP routing?</summary>
+        <p><strong>Answer:</strong> Routing chooses the next-hop IP (Network); ARP resolves that next-hop IP to a MAC on the local link (Link). They operate at adjacent layers.</p>
+      </details>
+
+      <details>
+        <summary>5) Give one benefit and one risk of collapsing OSI’s upper layers.</summary>
+        <p><strong>Answer:</strong> Benefit: simpler stacks and faster implementations. Risk: blurred responsibilities (e.g., where to place security/serialization), which can complicate interoperability and debugging.</p>
+      </details>
+
+      <details>
+        <summary>6) When would UDP be a better choice than TCP at the Transport layer?</summary>
+        <p><strong>Answer:</strong> For real-time or loss-tolerant traffic (voice, telemetry, gaming) where timeliness matters more than perfect reliability or ordering; the application handles recovery.</p>
+      </details>
+    </section>
+
+    <!-- Resources -->
+    <section class="section" id="resources">
       <h2>Resources</h2>
-      <ul class="resource-list">
-        <li><a target="_blank" href="https://www.cisco.com/c/en/us/training-events/training-certifications/exams/current-list/ccna.html">Cisco Packet Tracer Labs</a> — free simulation tool for layer practice.</li>
-        <li><a target="_blank" href="https://www.pearson.com/en-us/subject-catalog/p/How-the-Internet-Works/P200000006542">How the Internet Works (Jeffrey Beasley)</a> — approachable diagrams.</li>
-        <li><a target="_blank" href="https://www.cloudflare.com/learning/network-layer/what-is-the-osi-model/">Cloudflare Learning Center: OSI Model</a> — quick reference with practical mappings.</li>
-      </ul>
+      <div class="resource-list">
+        <div class="item">
+          <div>
+            <a class="external" href="https://www.cloudflare.com/learning/network-layer/what-is-the-osi-model/" target="_blank">Cloudflare Learning Center — OSI Model</a>
+            <div class="meta">Clear explanations and developer-friendly diagrams for each layer.</div>
+          </div>
+          <span class="badge">Guide</span>
+        </div>
+        <div class="item">
+          <div>
+            <a class="external" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview" target="_blank">MDN — HTTP Overview</a>
+            <div class="meta">How HTTP fits above TCP/TLS and what requests/responses contain.</div>
+          </div>
+          <span class="badge">Docs</span>
+        </div>
+        <div class="item">
+          <div>
+            <a class="external" href="https://www.wireshark.org/docs/wsug_html_chunked/" target="_blank">Wireshark User’s Guide</a>
+            <div class="meta">Step-by-step packet analysis, filters by protocol, and layer inspection.</div>
+          </div>
+          <span class="badge">Docs</span>
+        </div>
+      </div>
     </section>
 
-    <section class="card practice">
-      <h2>Practice</h2>
-      <ol>
-        <li>List each OSI layer with an example technology or protocol. (15 min)</li>
-        <li>Match common developer actions (open a web page, upload a file, DNS lookup) to TCP/IP layers. (20 min)</li>
-        <li>Sketch a diagram showing encapsulation through OSI layers. (15 min)</li>
-      </ol>
+    <!-- Recap & Next -->
+    <section class="section">
+      <h2 id="recap">Recap &amp; Next Steps</h2>
+      <p>
+        You compared OSI and TCP/IP, practiced mapping real protocols to layers, and saw how encapsulation moves an email or web request end-to-end. You also learned to localize failures by asking “which layer could explain these symptoms?”.
+      </p>
+      <p>
+        In <a href="chapters/ch04.html">Chapter 4</a>, you’ll make layers concrete with addressing and routing: IPv4 vs IPv6, subnets and CIDR, default gateways, and how packets find their way through routers.
+      </p>
     </section>
 
-    <section class="card mastery">
-      <h2>Mastery Check</h2>
-      <ol>
-        <li>Why did OSI have seven layers while TCP/IP only four?</li>
-        <details><summary>Answer</summary><p>OSI split functions into finer categories (session, presentation). TCP/IP collapsed them for practicality, aligning with working protocols.</p></details>
-
-        <li>Give one advantage of layering in networks.</li>
-        <details><summary>Answer</summary><p>Modularity: each layer can change implementation without affecting others (e.g., switching Wi-Fi to Ethernet without rewriting HTTP).</p></details>
-
-        <li>Map a DNS query to OSI/TCP-IP layers.</li>
-        <details><summary>Answer</summary><p>Application: DNS protocol; Transport: UDP port 53; Internet: IP routing; Link: Ethernet/Wi-Fi delivery.</p></details>
-
-        <li>What is a TCP reset and at which layer is it visible?</li>
-        <details><summary>Answer</summary><p>A control flag in the transport layer (TCP) signaling immediate connection termination. Applications may experience it as errors like “connection reset.”</p></details>
-
-        <li>Compare OSI vs TCP/IP use today.</li>
-        <details><summary>Answer</summary><p>OSI: conceptual teaching tool. TCP/IP: actual framework used by Internet protocols and operating systems.</p></details>
-      </ol>
-    </section>
-
-    <section class="card">
-      <h2>Recap & Next Steps</h2>
-      <p>Layers are the mental scaffolding of networking. OSI provides a comprehensive teaching model, TCP/IP reflects operational reality. As a developer, you should be fluent in both: OSI for theory and debugging shorthand, TCP/IP for actual implementation. Next chapter: we’ll zoom into the <strong>Internet layer</strong>—IP addressing, subnets, and routing fundamentals.</p>
-    </section>
-
-    <div class="next-prev">
-      <a href="chapters/ch02.html" rel="prev">← Previous: Core Concepts</a>
-      <a href="chapters/ch04.html" rel="next">Next: IP Addressing & Routing →</a>
-    </div>
+    <nav class="next-prev">
+      <a href="chapters/ch02.html" rel="prev">Previous: Core Concepts of Computer Networking</a>
+      <a href="chapters/ch04.html" rel="next">Next: IP Addressing, Subnetting &amp; Routing Basics</a>
+    </nav>
   </main>
 
   <footer class="site-footer">
-    © Networking for Software Engineers (Beginner).
+    <div class="container">
+      <p class="muted">© 2025 BookBuilder Project.</p>
+    </div>
   </footer>
 
-  <!-- CHECKLIST
-    - [x] <base> correct
-    - [x] Canonical nav verbatim
-    - [x] Pager prev/next valid
-    - [x] ≥1200 words (met)
-    - [x] ≥2 examples, 1 case study, 1 compare/contrast, 1 analogy
-    - [x] ≥8 glossary terms (e.g., OSI, TCP/IP, transport, application, session, presentation, encapsulation, reset)
-    - [x] ≥1 figure
-    - [x] Practice (3 tasks), Mastery (5 Qs)
+  <!--
+  CHECKLIST
+  - [x] /styles/theme.css + /scripts/app.js linked (paths correct for chapter page)
+  - [x] <base> present & correct (../)
+  - [x] Canonical nav verbatim; active link set to "Chapters"
+  - [x] Pager prev/next valid (ch02 ↔ ch04)
+  - [x] Sections meet Depth minima (1,200–1,800 words; ≥2 examples; 1 case study; compare/contrast; analogy)
+  - [x] Practice 3 items with time & success criteria
+  - [x] Mastery 5–7 Qs with answers in <details>
+  - [x] ≥8 glossary terms via <abbr> (OSI, TCP, UDP, IP, MAC, ARP, ICMP, VLAN, TLS, JSON, PMTUD, MTU, default gateway)
+  - [x] ≥1 figure referencing ../assets/ (osi-tcpip-map.svg)
   -->
 </body>
 </html>

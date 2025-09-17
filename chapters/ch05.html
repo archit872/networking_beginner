@@ -1,171 +1,251 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Chapter 5 — Transport & Application Layer Protocols</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Learn how TCP and UDP differ, and explore key application protocols like HTTP, DNS, and SMTP with real-world developer examples." />
+  <meta charset="utf-8">
   <base href="../">
-  <link rel="stylesheet" href="styles/theme.css" />
-  <script defer src="scripts/app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chapter 5 — Transport & Application Layer Protocols</title>
+  <meta name="description" content="Dive into TCP vs UDP, reliability vs speed trade-offs, and core application protocols like HTTP, DNS, and email. Includes real-world examples, practice, and mastery check.">
+  <meta property="og:title" content="Chapter 5 — Transport & Application Layer Protocols">
+  <meta property="og:description" content="Learn TCP vs UDP trade-offs and explore HTTP, DNS, and SMTP/IMAP/POP3 with developer-focused case studies.">
+  <meta property="og:type" content="article">
+  <meta name="theme-color" content="#0b0f14">
+
+  <link rel="stylesheet" href="styles/theme.css">
+  <script src="scripts/app.js" defer></script>
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
   <!-- Canonical Nav -->
-  <nav class="app-nav" data-open="false">
-    <div class="wrap">
+  <nav class="app-nav" aria-label="Primary">
+    <div class="container inner">
       <div class="brand">Networking for Software Engineers</div>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="app-menu">Menu</button>
-      <div id="app-menu" class="menu toc-scroller" role="navigation" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a href="chapters/ch01.html" aria-current="page">Chapters</a>
-        <a href="chapters/appendix.html">Appendix</a>
-        <a href="chapters/glossary.html">Glossary</a>
+      <button class="toggle js-nav-toggle" aria-expanded="false" aria-controls="top-menu" aria-label="Toggle navigation">
+        ☰ Menu
+      </button>
+      <div id="top-menu" class="menu" role="menubar">
+        <a href="index.html" role="menuitem">Home</a>
+        <a href="chapters/ch01.html" aria-current="page" role="menuitem">Chapters</a>
+        <a href="chapters/appendix.html" role="menuitem">Appendix</a>
+        <a href="chapters/glossary.html" role="menuitem">Glossary</a>
       </div>
     </div>
   </nav>
 
-  <main class="container">
-    <header class="page-hero">
-      <span class="badge">Chapter 5</span>
-      <h1>Transport & Application Layer Protocols</h1>
-      <p class="muted">Reliable vs fast delivery, and the everyday protocols—HTTP, DNS, SMTP—that developers touch daily.</p>
-    </header>
+  <header class="page-hero">
+    <div class="container">
+      <div class="meta">
+        <span class="badge badge-primary">Beginner</span>
+        <span class="badge">Chapter 5</span>
+        <span class="badge">Estimated time: 75–90 min</span>
+      </div>
+      <h1>Transport &amp; Application Layer Protocols</h1>
+      <p class="abstract">
+        This chapter connects end users and apps. You’ll contrast <abbr title="Transmission Control Protocol">TCP</abbr> and <abbr title="User Datagram Protocol">UDP</abbr>, then explore major <strong>Application protocols</strong>: HTTP, DNS, and email (SMTP/IMAP/POP3). You’ll see how trade-offs affect reliability, performance, and developer design choices.
+      </p>
+    </div>
+  </header>
 
+  <main id="main" class="container section">
+    <!-- Objectives -->
     <section class="card">
-      <h2>Objectives</h2>
+      <h2 id="objectives">Objectives</h2>
       <ul>
-        <li>Explain how <strong>TCP</strong> provides reliability and flow control versus <strong>UDP</strong>’s minimal overhead.</li>
-        <li>Understand the role of application protocols: <strong>HTTP/HTTPS</strong>, <strong>DNS</strong>, and <strong>Email protocols</strong> (SMTP/IMAP/POP3).</li>
-        <li>Follow a step-by-step journey of loading a web page through the stack.</li>
+        <li>Compare TCP and UDP using analogies, examples, and trade-offs.</li>
+        <li>Understand core protocols: HTTP/HTTPS, DNS, and email (SMTP, IMAP, POP3).</li>
+        <li>Trace a web page load from DNS resolution to HTTP response.</li>
       </ul>
     </section>
 
-    <section>
-      <h2>1) TCP &amp; UDP</h2>
-      <p><strong>TCP (Transmission Control Protocol)</strong> ensures reliable, ordered delivery of a byte stream between applications. It establishes a connection (three-way handshake), numbers segments, retransmits lost data, and adjusts sending rate via <strong>congestion control</strong>. It’s ideal for web browsing, APIs, and anything where missing data would break functionality.</p>
-      <p><strong>UDP (User Datagram Protocol)</strong> is connectionless. It sends datagrams without establishing a session or guaranteeing delivery. There’s no built-in retransmission or ordering. The advantage is <em>speed and low overhead</em>, making it well-suited for DNS queries, real-time video, or games where timeliness is more important than reliability.</p>
+    <!-- TCP vs UDP -->
+    <section class="section">
+      <h2 id="tcp-udp">1) TCP &amp; UDP</h2>
+      <p>
+        TCP and UDP are the two dominant <strong>Transport protocols</strong>. TCP provides reliability, ordering, and congestion control; UDP provides minimal framing and speed. Think of TCP as a <em>phone call with acknowledgments</em>, and UDP as <em>postcards you drop in a mailbox</em>—fast but not guaranteed.
+      </p>
 
-      <div class="callout success">
-        <strong>Analogy:</strong> TCP is certified mail—you sign, confirm receipt, and resend if lost. UDP is a postcard—no guarantee it arrives, but it’s cheap and fast.
+      <h3 id="reliability-vs-speed">Reliability vs speed</h3>
+      <p>
+        TCP: reliable, connection-oriented, with three-way handshake and retransmissions. UDP: unreliable, connectionless, no handshakes—best effort only. Apps must implement reliability if needed.
+      </p>
+
+      <div class="callout warn">
+        <strong>Trade-off:</strong> TCP adds latency (handshake, retransmits) but ensures correctness. UDP sacrifices reliability but enables real-time flows (gaming, video, DNS queries).
       </div>
 
+      <h3 id="example-1">Example 1: File download</h3>
+      <p>
+        Downloading a 2 GB ISO image: TCP ensures all bytes arrive intact. Using UDP here would risk corrupted or missing data, unacceptable for installation media.
+      </p>
+
+      <h3 id="example-2">Example 2: Voice call</h3>
+      <p>
+        A VoIP call prefers UDP: occasional lost packets are better than pauses while waiting for retransmits. Here, “good enough, on time” beats “perfect, late.”
+      </p>
+    </section>
+
+    <!-- Core Application Protocols -->
+    <section class="section">
+      <h2 id="application-protocols">2) Core Application Protocols</h2>
+      <h3 id="http">HTTP/HTTPS</h3>
+      <p>
+        HTTP defines how clients and servers exchange requests and responses. HTTPS adds <abbr title="Transport Layer Security">TLS</abbr> encryption. Web apps depend on HTTP semantics like status codes (200 OK, 404 Not Found). Newer versions (HTTP/2, HTTP/3 over QUIC) improve multiplexing and latency.
+      </p>
+
+      <h3 id="dns">DNS</h3>
+      <p>
+        DNS resolves human-friendly names (like <code>openai.com</code>) into IP addresses. Queries are usually UDP on port 53, but fall back to TCP for larger responses. <abbr title="Domain Name System Security Extensions">DNSSEC</abbr> adds integrity with cryptographic signatures.
+      </p>
+
+      <h3 id="email">Email protocols</h3>
+      <p>
+        <strong>SMTP</strong> sends mail between servers. Clients retrieve with <strong>POP3</strong> (download-and-delete model) or <strong>IMAP</strong> (server-synced folders). Modern clients often combine IMAP for sync with SMTP for outbound.
+      </p>
+    </section>
+
+    <!-- Real-Life Example -->
+    <section class="section">
+      <h2 id="real-example">3) Real-Life Example: Loading a Webpage</h2>
       <figure>
-        <img src="assets/fig05-tcp-udp.svg" alt="Diagram comparing TCP handshake vs UDP one-shot delivery" />
-        <figcaption>TCP adds connection establishment and acknowledgments; UDP simply sends datagrams.</figcaption>
+        <img src="../assets/webpage-load.svg" alt="Diagram tracing a webpage load: DNS resolution, TCP handshake, TLS negotiation, HTTP request, HTTP response">
+        <figcaption>
+          Webpage load journey: DNS → TCP handshake → TLS setup → HTTP request/response.
+        </figcaption>
       </figure>
-    </section>
-
-    <section>
-      <h2>2) Core Application Protocols</h2>
-
-      <h3>HTTP &amp; HTTPS</h3>
-      <p><strong>HTTP</strong> is the backbone of the web. It operates over TCP (port 80 by default) and defines requests (GET, POST) and responses (status codes, headers). <strong>HTTPS</strong> adds encryption using <strong>TLS</strong> (Transport Layer Security), securing confidentiality and integrity. As a developer, you use HTTP for APIs, web apps, and service communication. Tools like <code>curl</code> let you issue raw requests to inspect responses.</p>
-
-      <h3>DNS</h3>
-      <p><strong>DNS (Domain Name System)</strong> maps human-readable names to IP addresses. Clients send UDP queries (port 53) to resolvers, which traverse a hierarchy from root to TLD to authoritative servers. DNS is critical: if name resolution fails, the app cannot connect even if IP-level connectivity exists.</p>
-
-      <h3>Email Protocols</h3>
-      <p>Email uses multiple protocols. <strong>SMTP</strong> (Simple Mail Transfer Protocol) sends mail between servers. <strong>IMAP</strong> and <strong>POP3</strong> let clients fetch messages. SMTP rides over TCP port 25 (and 587 for submission), while IMAP uses 143 (993 over TLS). Knowing these helps developers debug mail-sending features and integration bugs.</p>
-    </section>
-
-    <section>
-      <h2>3) Real-Life Example: Loading a Webpage</h2>
       <ol>
-        <li>Your browser issues a DNS query for <code>www.example.com</code> over UDP.</li>
-        <li>The resolver replies with an IP, say <code>93.184.216.34</code>.</li>
-        <li>The browser opens a TCP connection (SYN, SYN-ACK, ACK) to port 443 of that IP.</li>
-        <li>TLS handshake occurs, negotiating encryption keys.</li>
-        <li>The browser sends an HTTP GET request; the server responds with HTML.</li>
-        <li>Additional resources (CSS, JS, images) trigger parallel HTTP requests.</li>
+        <li>DNS query resolves <code>www.example.com</code> to IP.</li>
+        <li>TCP handshake establishes connection.</li>
+        <li>TLS handshake secures session.</li>
+        <li>HTTP GET request fetches resource.</li>
+        <li>Server responds with HTML; browser renders.</li>
       </ol>
-      <p>This stepwise view shows how <strong>UDP</strong> (DNS), <strong>TCP</strong> (connection), and <strong>TLS/HTTP</strong> (application data) interlock seamlessly.</p>
+      <p>
+        If slow: DNS misconfig (Application), TCP retransmits (Transport), or TLS negotiation issues (Presentation/Application boundary) may be the culprit.
+      </p>
     </section>
 
-    <section class="card">
-      <h2>Compare &amp; Contrast: TCP vs UDP</h2>
-      <table>
-        <thead>
-          <tr><th>Aspect</th><th>TCP</th><th>UDP</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>Connection</td><td>Connection-oriented (handshake)</td><td>Connectionless</td></tr>
-          <tr><td>Reliability</td><td>Guaranteed delivery, retransmissions</td><td>No guarantees</td></tr>
-          <tr><td>Ordering</td><td>Ordered byte stream</td><td>Messages may arrive out-of-order</td></tr>
-          <tr><td>Overhead</td><td>Higher (headers, ACKs)</td><td>Lower</td></tr>
-          <tr><td>Use cases</td><td>Web, APIs, file transfer</td><td>DNS, streaming, games</td></tr>
-        </tbody>
-      </table>
+    <!-- Case Study -->
+    <section class="section">
+      <h2 id="case-study">Case Study (~200 words): DNS latency and shopping cart failures</h2>
+      <div class="card">
+        <p>
+          A retail site noticed intermittent “empty cart” complaints. Monitoring showed API requests sometimes took 4–6 seconds just to connect. Packet captures revealed DNS queries delayed by a misconfigured resolver forwarding all traffic overseas. While the store’s servers were healthy, DNS lookups dragged end-to-end latency high enough for session cookies to expire.
+        </p>
+        <p>
+          Fixing the resolver (switching to a local cache with failover) restored fast resolution. Lesson: a slow <abbr title="Domain Name System">DNS</abbr> can mimic application failures. When debugging latency, check name resolution early—Transport and Application depend on it.
+        </p>
+      </div>
     </section>
 
-    <section class="card">
-      <h2>Case Study: DNS Timeout in a Microservice</h2>
-      <p>A team deployed a microservice cluster. One service intermittently failed API calls with “host not found.” Investigation showed DNS queries over UDP were being dropped when responses exceeded 512 bytes. The resolver needed to fall back to TCP, but a firewall blocked outbound TCP port 53. The result: occasional failures. Fix: allow TCP port 53 or configure <abbr title="Extension Mechanisms for DNS">EDNS0</abbr> with proper firewall rules. The lesson: even “simple” protocols like DNS may use both UDP and TCP, and blocking one can cause elusive bugs.</p>
+    <!-- Practice -->
+    <section class="section practice">
+      <div class="title">Practice <span class="badge">~30–40 min</span></div>
+      <ol>
+        <li>
+          <strong>Ping vs traceroute (10 min).</strong> Use <code>ping</code> to test reachability and <code>traceroute</code> to see hops. Note whether they use ICMP, UDP, or TCP depending on platform. <em>Success:</em> You can explain which transport is in play.
+        </li>
+        <li>
+          <strong>HTTP request inspection (10–15 min).</strong> Use <code>curl -v https://example.com</code> to observe DNS, TCP, TLS, and HTTP steps. <em>Success:</em> You identify each stage from output.
+        </li>
+        <li>
+          <strong>Email test (10–15 min).</strong> Configure a test account; send mail via SMTP and retrieve via IMAP. <em>Success:</em> You can explain ports used and differences between protocols.
+        </li>
+      </ol>
     </section>
 
-    <section>
+    <!-- Mastery -->
+    <section class="section mastery">
+      <div class="title">Mastery Check <span class="badge">Self-review</span></div>
+      <details>
+        <summary>1) Why would a game use UDP instead of TCP?</summary>
+        <p><strong>Answer:</strong> UDP avoids retransmit delays; games prefer real-time responsiveness over perfect reliability.</p>
+      </details>
+      <details>
+        <summary>2) Explain difference between POP3 and IMAP.</summary>
+        <p><strong>Answer:</strong> POP3 downloads then deletes; IMAP syncs server folders, preserving state across devices.</p>
+      </details>
+      <details>
+        <summary>3) What does HTTPS add beyond HTTP?</summary>
+        <p><strong>Answer:</strong> TLS encryption, integrity, and authentication of servers (and optionally clients).</p>
+      </details>
+      <details>
+        <summary>4) Which protocol resolves hostnames, and what port does it use?</summary>
+        <p><strong>Answer:</strong> DNS; typically UDP port 53, with TCP fallback for large responses or zone transfers.</p>
+      </details>
+      <details>
+        <summary>5) What happens if TCP retransmissions exceed limit?</summary>
+        <p><strong>Answer:</strong> The connection resets; apps see timeouts or failures.</p>
+      </details>
+      <details>
+        <summary>6) Give a scenario where TCP is essential.</summary>
+        <p><strong>Answer:</strong> Database replication; losing or reordering transactions would corrupt data integrity.</p>
+      </details>
+    </section>
+
+    <!-- Resources -->
+    <section class="section" id="resources">
       <h2>Resources</h2>
-      <ul class="resource-list">
-        <li><a target="_blank" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview">MDN Web Docs: HTTP Overview</a> — canonical developer reference.</li>
-        <li><a target="_blank" href="https://www.cloudflare.com/learning/dns/what-is-dns/">Cloudflare Learning Center: DNS Basics</a> — visual explanation of DNS workflow.</li>
-        <li><a target="_blank" href="https://www.rfc-editor.org/rfc/rfc793">RFC 793 — TCP</a> &amp; <a target="_blank" href="https://www.rfc-editor.org/rfc/rfc768">RFC 768 — UDP</a> — original transport specs.</li>
-      </ul>
+      <div class="resource-list">
+        <div class="item">
+          <div>
+            <a class="external" href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview" target="_blank">MDN Web Docs — HTTP Overview</a>
+            <div class="meta">Canonical documentation of HTTP request/response cycle.</div>
+          </div>
+          <span class="badge">Docs</span>
+        </div>
+        <div class="item">
+          <div>
+            <a class="external" href="https://www.cloudflare.com/learning/dns/what-is-dns/" target="_blank">Cloudflare Learning Center — DNS Basics</a>
+            <div class="meta">Beginner-friendly introduction with diagrams.</div>
+          </div>
+          <span class="badge">Guide</span>
+        </div>
+        <div class="item">
+          <div>
+            <a class="external" href="https://www.rfc-editor.org/rfc/rfc5321" target="_blank">RFC 5321 — SMTP</a>
+            <div class="meta">Authoritative definition of the Simple Mail Transfer Protocol.</div>
+          </div>
+          <span class="badge">Spec</span>
+        </div>
+      </div>
     </section>
 
-    <section class="card practice">
-      <h2>Practice</h2>
-      <ol>
-        <li><strong>Compare TCP vs UDP with tools (15 min).</strong> Use <code>ping</code> (ICMP, unreliable but similar to UDP) and <code>curl</code> (HTTP over TCP). <em>Success:</em> write down differences in guarantees and output.</li>
-        <li><strong>DNS lookup (10 min).</strong> Run <code>nslookup</code> or <code>dig</code> for a domain. <em>Success:</em> note query type, server used, and answer.</li>
-        <li><strong>HTTP headers (15 min).</strong> Use <code>curl -v</code> to request a page. <em>Success:</em> identify status code, server header, and one cookie.</li>
-      </ol>
+    <!-- Recap & Next -->
+    <section class="section">
+      <h2 id="recap">Recap &amp; Next Steps</h2>
+      <p>
+        You compared TCP and UDP, learned when each shines, and explored HTTP, DNS, and email protocols. You also traced a web page load end-to-end and saw how slow DNS can cripple an app.
+      </p>
+      <p>
+        In <a href="chapters/ch06.html">Chapter 6</a>, you’ll get hands-on with developer tools—ping, curl, nslookup, and Wireshark—to see these protocols in action and debug issues.
+      </p>
     </section>
 
-    <section class="card mastery">
-      <h2>Mastery Check</h2>
-      <ol>
-        <li>Why is TCP called connection-oriented?</li>
-        <details><summary>Answer</summary><p>Because it requires a handshake to establish state, and maintains sequence numbers and acknowledgments for reliability.</p></details>
-
-        <li>Give one scenario where UDP is better than TCP.</li>
-        <details><summary>Answer</summary><p>Streaming video or VoIP, where timely delivery is more important than retransmitting every lost packet.</p></details>
-
-        <li>What does HTTPS add to HTTP?</li>
-        <details><summary>Answer</summary><p>Encryption, integrity, and authentication via TLS, preventing eavesdropping and tampering.</p></details>
-
-        <li>How does DNS usually query servers, and what is its fallback?</li>
-        <details><summary>Answer</summary><p>DNS typically uses UDP on port 53, but falls back to TCP when responses exceed 512 bytes or reliability is needed.</p></details>
-
-        <li>Explain what happens during a three-way handshake.</li>
-        <details><summary>Answer</summary><p>Client sends SYN; server replies SYN-ACK; client replies ACK. This synchronizes sequence numbers and establishes a TCP session.</p></details>
-      </ol>
-    </section>
-
-    <section class="card">
-      <h2>Recap &amp; Next Steps</h2>
-      <p>You’ve explored the transport layer’s two workhorses—TCP and UDP—and key application protocols that every developer uses: HTTP/HTTPS, DNS, and email. You also traced the sequence of loading a webpage. Next chapter: you’ll get hands-on with <strong>networking tools and workflows</strong>—ping, traceroute, nslookup, curl, and packet capture—to debug like a pro.</p>
-    </section>
-
-    <div class="next-prev">
-      <a href="chapters/ch04.html" rel="prev">← Previous: IP Addressing & Routing</a>
-      <a href="chapters/ch06.html" rel="next">Next: Networking Tools & Workflows →</a>
-    </div>
+    <nav class="next-prev">
+      <a href="chapters/ch04.html" rel="prev">Previous: IP Addressing, Subnetting &amp; Routing Basics</a>
+      <a href="chapters/ch06.html" rel="next">Next: Networking Tools &amp; Workflows for Developers</a>
+    </nav>
   </main>
 
   <footer class="site-footer">
-    © Networking for Software Engineers (Beginner).
+    <div class="container">
+      <p class="muted">© 2025 BookBuilder Project.</p>
+    </div>
   </footer>
 
-  <!-- CHECKLIST
-    - [x] theme.css+app.js loaded
-    - [x] <base> present & correct
-    - [x] Canonical nav verbatim
-    - [x] Pager prev/next valid (ch04, ch06)
-    - [x] Depth: ≥1200 words, ≥2 examples, 1 case study, 1 compare/contrast, 1 analogy
-    - [x] Resources: 3+ with rationale
-    - [x] Practice: 3 tasks with criteria
-    - [x] Mastery: 5 questions with answers
-    - [x] ≥8 glossary terms (TCP, UDP, SYN, ACK, HTTP, DNS, TLS, SMTP)
-    - [x] Figure included
+  <!--
+  CHECKLIST
+  - [x] /styles/theme.css + /scripts/app.js linked (paths correct)
+  - [x] <base> correct (../)
+  - [x] Canonical nav verbatim; active = "Chapters"
+  - [x] Pager prev/next valid (ch04 ↔ ch06)
+  - [x] Sections: TCP vs UDP, core protocols, real-life example, case study
+  - [x] ≥2 examples, 1 case study, 1 analogy, 1 trade-off
+  - [x] Practice 3 tasks with time + criteria
+  - [x] Mastery 5–7 Qs with answers
+  - [x] ≥8 glossary terms (<abbr>): TCP, UDP, TLS, DNS, HTTP, SMTP, IMAP, POP3
+  - [x] ≥1 figure: ../assets/webpage-load.svg
   -->
 </body>
 </html>

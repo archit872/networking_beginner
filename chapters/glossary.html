@@ -1,509 +1,624 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Glossary — Networking for Software Engineers</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Alphabetical glossary of networking terms with plain definitions, formal notes, pitfalls, and concrete examples." />
+  <meta charset="utf-8">
   <base href="../">
-  <link rel="stylesheet" href="styles/theme.css" />
-  <script defer src="scripts/app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Glossary — Networking for Software Engineers</title>
+  <meta name="description" content="Alphabetical glossary of core networking terms with plain explanations, formal definitions, and concrete examples for software engineers.">
+  <meta property="og:title" content="Glossary — Networking for Software Engineers">
+  <meta property="og:description" content="Plain + Formal + Example for each key term: IP, DNS, TCP/UDP, TLS, MTU, NAT, CIDR, and more.">
+  <meta property="og:type" content="article">
+  <meta name="theme-color" content="#0b0f14">
+
+  <link rel="stylesheet" href="styles/theme.css">
+  <script src="scripts/app.js" defer></script>
 </head>
 <body>
-  <!-- Canonical Nav (copy verbatim) -->
-  <nav class="app-nav" data-open="false">
-    <div class="wrap">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Canonical Nav (verbatim across all pages). Only aria-current differs per page. -->
+  <nav class="app-nav" aria-label="Primary">
+    <div class="container inner">
       <div class="brand">Networking for Software Engineers</div>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="app-menu">Menu</button>
-      <div id="app-menu" class="menu toc-scroller" role="navigation" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a href="chapters/ch01.html">Chapters</a>
-        <a href="chapters/appendix.html">Appendix</a>
-        <a href="chapters/glossary.html" aria-current="page">Glossary</a>
+      <button class="toggle js-nav-toggle" aria-expanded="false" aria-controls="top-menu" aria-label="Toggle navigation">
+        ☰ Menu
+      </button>
+      <div id="top-menu" class="menu" role="menubar">
+        <a href="index.html" role="menuitem">Home</a>
+        <a href="chapters/ch01.html" role="menuitem">Chapters</a>
+        <a href="chapters/appendix.html" role="menuitem">Appendix</a>
+        <a href="chapters/glossary.html" aria-current="page" role="menuitem">Glossary</a>
       </div>
     </div>
   </nav>
 
-  <main class="container">
-    <header class="page-hero">
-      <span class="badge">Glossary</span>
-      <h1>Networking Glossary (A–Z)</h1>
-      <p class="muted">Each term follows a consistent pattern: <strong>Plain</strong> → <strong>Formal</strong> → <strong>Pitfall</strong> → <strong>Example</strong>. Use this page as a quick reference while reading chapters or troubleshooting.</p>
-    </header>
-
-    <section class="card">
-      <h2>Jump to</h2>
-      <p class="toc-scroller">
-        <a href="#A" class="pill">A</a>
-        <a href="#B" class="pill">B</a>
-        <a href="#C" class="pill">C</a>
-        <a href="#D" class="pill">D</a>
-        <a href="#E" class="pill">E</a>
-        <a href="#F" class="pill">F</a>
-        <a href="#G" class="pill">G</a>
-        <a href="#H" class="pill">H</a>
-        <a href="#I" class="pill">I</a>
-        <a href="#J" class="pill">J</a>
-        <a href="#K" class="pill">K</a>
-        <a href="#L" class="pill">L</a>
-        <a href="#M" class="pill">M</a>
-        <a href="#N" class="pill">N</a>
-        <a href="#O" class="pill">O</a>
-        <a href="#P" class="pill">P</a>
-        <a href="#Q" class="pill">Q</a>
-        <a href="#R" class="pill">R</a>
-        <a href="#S" class="pill">S</a>
-        <a href="#T" class="pill">T</a>
-        <a href="#U" class="pill">U</a>
-        <a href="#V" class="pill">V</a>
-        <a href="#W" class="pill">W</a>
+  <header class="page-hero">
+    <div class="container">
+      <div class="meta">
+        <span class="badge">Reference</span>
+      </div>
+      <h1>Glossary</h1>
+      <p class="abstract">
+        Each entry includes a <strong>Plain</strong> explanation, a concise <strong>Formal</strong> definition, and a concrete <strong>Example</strong>. Use the alphabet bar to jump.
       </p>
-    </section>
+      <nav aria-label="Glossary A–Z" class="muted" style="margin-top:0.5rem; overflow-x:auto; white-space:nowrap;">
+        <a href="#A" class="badge">A</a>
+        <a href="#B" class="badge">B</a>
+        <a href="#C" class="badge">C</a>
+        <a href="#D" class="badge">D</a>
+        <a href="#E" class="badge">E</a>
+        <a href="#F" class="badge">F</a>
+        <a href="#G" class="badge">G</a>
+        <a href="#H" class="badge">H</a>
+        <a href="#I" class="badge">I</a>
+        <a href="#J" class="badge">J</a>
+        <a href="#K" class="badge">K</a>
+        <a href="#L" class="badge">L</a>
+        <a href="#M" class="badge">M</a>
+        <a href="#N" class="badge">N</a>
+        <a href="#O" class="badge">O</a>
+        <a href="#P" class="badge">P</a>
+        <a href="#Q" class="badge">Q</a>
+        <a href="#R" class="badge">R</a>
+        <a href="#S" class="badge">S</a>
+        <a href="#T" class="badge">T</a>
+        <a href="#U" class="badge">U</a>
+        <a href="#V" class="badge">V</a>
+        <a href="#W" class="badge">W</a>
+      </nav>
+    </div>
+  </header>
 
+  <main id="main" class="container section">
     <!-- A -->
-    <section id="A" class="card">
-      <h2>A</h2>
-      <dl>
-        <dt><strong>ACK</strong></dt>
-        <dd><em>Plain:</em> “Got it” message in TCP. <br>
-            <em>Formal:</em> TCP control flag acknowledging receipt of bytes by sequence number. <br>
-            <em>Pitfall:</em> High ACK delays can indicate bufferbloat or loss. <br>
-            <em>Example:</em> During a file download, the client sends ACKs as it receives segments.</dd>
+    <h2 id="A">A</h2>
+    <dl class="glossary">
+      <dt id="a-a">A / AAAA record</dt>
+      <dd>
+        <p><strong>Plain:</strong> DNS answers that map a name to an IPv4 (<code>A</code>) or IPv6 (<code>AAAA</code>) address.</p>
+        <p><strong>Formal:</strong> Resource records returning 32-bit (A) or 128-bit (AAAA) address data for a domain name.</p>
+        <p><strong>Example:</strong> <code>www.example.com A 93.184.216.34</code>; <code>AAAA 2606:2800:220:1:248:1893:25c8:1946</code>.</p>
+      </dd>
 
-        <dt><strong>ACL</strong> (Access Control List)</dt>
-        <dd><em>Plain:</em> Permit/deny rules for traffic. <br>
-            <em>Formal:</em> Ordered L3/L4 policy evaluated on network devices or hosts. <br>
-            <em>Pitfall:</em> Rule order matters; last-match “deny all” bites. <br>
-            <em>Example:</em> “Allow TCP 443 from 10.0.0.0/8 to 203.0.113.20.”</dd>
+      <dt id="acl">ACL (Access Control List)</dt>
+      <dd>
+        <p><strong>Plain:</strong> Rules that allow or block traffic.</p>
+        <p><strong>Formal:</strong> Ordered match conditions applied to packet headers to permit or deny flows.</p>
+        <p><strong>Example:</strong> “Allow TCP 443 from <code>10.0.0.0/8</code>; deny all.”</p>
+      </dd>
 
-        <dt><strong>ARP</strong></dt>
-        <dd><em>Plain:</em> Phonebook for IP→MAC on a LAN. <br>
-            <em>Formal:</em> RFC 826 protocol resolving IPv4 addresses to link-layer identifiers. <br>
-            <em>Pitfall:</em> Stale ARP caches cause “works then randomly fails.” <br>
-            <em>Example:</em> Host asks “Who has 192.168.1.1?” to learn the router’s MAC.</dd>
+      <dt id="alpn">ALPN</dt>
+      <dd>
+        <p><strong>Plain:</strong> TLS extension where client and server agree on the application protocol (e.g., HTTP/2).</p>
+        <p><strong>Formal:</strong> Application-Layer Protocol Negotiation per RFC 7301, enabling in-handshake protocol selection.</p>
+        <p><strong>Example:</strong> Browser announces <code>h2</code> and <code>http/1.1</code>; server selects <code>h2</code>.</p>
+      </dd>
 
-        <dt><strong>ASN</strong> (Autonomous System Number)</dt>
-        <dd><em>Plain:</em> Internet “organization ID” for routing. <br>
-            <em>Formal:</em> Unique identifier used by BGP to exchange reachability between networks. <br>
-            <em>Pitfall:</em> Private ASNs must be stripped before advertising to the public Internet. <br>
-            <em>Example:</em> Cloud providers have public ASNs (e.g., AS16509).</dd>
-      </dl>
-    </section>
+      <dt id="anycast">Anycast</dt>
+      <dd>
+        <p><strong>Plain:</strong> Many servers share one IP; you’re routed to the nearest.</p>
+        <p><strong>Formal:</strong> Same unicast address advertised from multiple locations; routing chooses the topologically closest.</p>
+        <p><strong>Example:</strong> Public DNS resolvers (e.g., <code>1.1.1.1</code>) use anycast for low latency.</p>
+      </dd>
+
+      <dt id="arp">ARP</dt>
+      <dd>
+        <p><strong>Plain:</strong> How a device learns the MAC address for a local IPv4 address.</p>
+        <p><strong>Formal:</strong> Address Resolution Protocol maps IPv4 to link-layer addresses within a broadcast domain.</p>
+        <p><strong>Example:</strong> “Who has 192.168.1.1? Tell 192.168.1.10.”</p>
+      </dd>
+    </dl>
 
     <!-- B -->
-    <section id="B" class="card">
-      <h2>B</h2>
-      <dl>
-        <dt><strong>Bandwidth</strong></dt>
-        <dd><em>Plain:</em> How wide the data highway is. <br>
-            <em>Formal:</em> Maximum data rate supported by a link (e.g., 1 Gbps). <br>
-            <em>Pitfall:</em> High bandwidth ≠ high throughput if latency/loss are poor. <br>
-            <em>Example:</em> A 100 Mbps ISP plan.</dd>
+    <h2 id="B">B</h2>
+    <dl class="glossary">
+      <dt id="bandwidth">Bandwidth</dt>
+      <dd>
+        <p><strong>Plain:</strong> Capacity—how much can flow per second.</p>
+        <p><strong>Formal:</strong> Maximum theoretical data rate of a link, typically bits per second.</p>
+        <p><strong>Example:</strong> A 1 Gbps Ethernet link.</p>
+      </dd>
 
-        <dt><strong>BGP</strong></dt>
-        <dd><em>Plain:</em> The Internet’s route-exchange protocol. <br>
-            <em>Formal:</em> Path-vector protocol (RFC 4271) using AS paths and policies. <br>
-            <em>Pitfall:</em> Leaks/misconfigurations can black-hole large parts of the Internet. <br>
-            <em>Example:</em> Anycast DNS uses BGP to announce the same prefix from many sites.</dd>
-      </dl>
-    </section>
+      <dt id="bgp">BGP</dt>
+      <dd>
+        <p><strong>Plain:</strong> The Internet’s route-exchange protocol between networks.</p>
+        <p><strong>Formal:</strong> Border Gateway Protocol advertises reachability and policy between autonomous systems.</p>
+        <p><strong>Example:</strong> An ISP changes BGP to reroute around a fiber cut.</p>
+      </dd>
+    </dl>
 
     <!-- C -->
-    <section id="C" class="card">
-      <h2>C</h2>
-      <dl>
-        <dt><strong>CIDR</strong></dt>
-        <dd><em>Plain:</em> Flexible way to write network sizes like <code>/24</code>. <br>
-            <em>Formal:</em> Classless addressing using variable-length prefixes. <br>
-            <em>Pitfall:</em> Confusing mask with gateway leads to off-subnet failures. <br>
-            <em>Example:</em> <code>10.0.5.0/26</code> has 64 addresses.</dd>
+    <h2 id="C">C</h2>
+    <dl class="glossary">
+      <dt id="cdn">CDN</dt>
+      <dd>
+        <p><strong>Plain:</strong> A network that caches content near users.</p>
+        <p><strong>Formal:</strong> Distributed edge POPs serving cached/static assets via anycast and request routing.</p>
+        <p><strong>Example:</strong> Images served from a city-nearby edge instead of your origin.</p>
+      </dd>
 
-        <dt><strong>CNAME</strong></dt>
-        <dd><em>Plain:</em> DNS alias to another name. <br>
-            <em>Formal:</em> Canonical name record pointing a label to a target domain. <br>
-            <em>Pitfall:</em> Long CNAME chains slow lookups; mixing with other record types is restricted. <br>
-            <em>Example:</em> <code>www</code> → <code>app.example.net</code>.</dd>
-      </dl>
-    </section>
+      <dt id="cidr">CIDR</dt>
+      <dd>
+        <p><strong>Plain:</strong> A shorthand for the size of a subnet, like <code>/24</code>.</p>
+        <p><strong>Formal:</strong> Classless Inter-Domain Routing notation defining network prefix length in bits.</p>
+        <p><strong>Example:</strong> <code>10.0.0.0/20</code> has 4096 addresses.</p>
+      </dd>
+
+      <dt id="cname">CNAME</dt>
+      <dd>
+        <p><strong>Plain:</strong> DNS alias—this name is really that other name.</p>
+        <p><strong>Formal:</strong> Canonical name record mapping an alias to a canonical domain; requires further resolution.</p>
+        <p><strong>Example:</strong> <code>api.example.com CNAME api.edge.example.net</code>.</p>
+      </dd>
+
+      <dt id="congestion">Congestion control</dt>
+      <dd>
+        <p><strong>Plain:</strong> TCP’s behavior to avoid flooding the network.</p>
+        <p><strong>Formal:</strong> Algorithms (e.g., Reno/CUBIC) adjusting send window based on loss/latency signals.</p>
+        <p><strong>Example:</strong> Throughput dips after packet loss as TCP backs off.</p>
+      </dd>
+    </dl>
 
     <!-- D -->
-    <section id="D" class="card">
-      <h2>D</h2>
-      <dl>
-        <dt><strong>DNS</strong></dt>
-        <dd><em>Plain:</em> The Internet’s phonebook. <br>
-            <em>Formal:</em> Hierarchical, distributed naming system mapping names to data (A/AAAA/MX…). <br>
-            <em>Pitfall:</em> Split-horizon answers differ inside vs outside; caching hides changes. <br>
-            <em>Example:</em> <code>api.example.com → 203.0.113.10</code>.</dd>
+    <h2 id="D">D</h2>
+    <dl class="glossary">
+      <dt id="default-gateway">Default gateway</dt>
+      <dd>
+        <p><strong>Plain:</strong> The router your host uses for off-subnet traffic.</p>
+        <p><strong>Formal:</strong> Next-hop for the default route (<code>0.0.0.0/0</code> or <code>::/0</code>).</p>
+        <p><strong>Example:</strong> Laptop sends Internet-bound packets to <code>192.168.1.1</code>.</p>
+      </dd>
 
-        <dt><strong>Default Gateway</strong></dt>
-        <dd><em>Plain:</em> The router your host uses to leave the local subnet. <br>
-            <em>Formal:</em> Next-hop for route <code>0.0.0.0/0</code> (or <code>::/0</code>). <br>
-            <em>Pitfall:</em> Missing gateway = LAN-only access. <br>
-            <em>Example:</em> <code>192.168.1.1</code> at home.</dd>
-      </dl>
-    </section>
+      <dt id="dhcp">DHCP</dt>
+      <dd>
+        <p><strong>Plain:</strong> Automatic assignment of IPs and network settings.</p>
+        <p><strong>Formal:</strong> Dynamic Host Configuration Protocol providing addresses, masks, gateways, DNS.</p>
+        <p><strong>Example:</strong> New device gets <code>192.168.1.42/24</code> from your router.</p>
+      </dd>
+
+      <dt id="dns">DNS</dt>
+      <dd>
+        <p><strong>Plain:</strong> The phonebook of the Internet.</p>
+        <p><strong>Formal:</strong> Hierarchical, distributed naming system mapping names to records (A/AAAA, MX, TXT…).</p>
+        <p><strong>Example:</strong> Browser resolves <code>example.com</code> before connecting.</p>
+      </dd>
+
+      <dt id="dnssec">DNSSEC</dt>
+      <dd>
+        <p><strong>Plain:</strong> DNS with authenticity checks.</p>
+        <p><strong>Formal:</strong> Extensions that add cryptographic signatures to DNS data to validate integrity and origin.</p>
+        <p><strong>Example:</strong> Resolver rejects a tampered record lacking a valid signature.</p>
+      </dd>
+    </dl>
 
     <!-- E -->
-    <section id="E" class="card">
-      <h2>E</h2>
-      <dl>
-        <dt><strong>Encapsulation</strong></dt>
-        <dd><em>Plain:</em> Putting one message inside another like nested envelopes. <br>
-            <em>Formal:</em> Layered protocol headers wrapping payloads (L7→L4→L3→L2). <br>
-            <em>Pitfall:</em> Extra headers reduce effective MTU and can cause fragmentation. <br>
-            <em>Example:</em> HTTP inside TCP, inside IP, inside Ethernet.</dd>
+    <h2 id="E">E</h2>
+    <dl class="glossary">
+      <dt id="encapsulation">Encapsulation</dt>
+      <dd>
+        <p><strong>Plain:</strong> Wrapping data with headers at each layer.</p>
+        <p><strong>Formal:</strong> Systematic addition of protocol headers/trailers as data descends the stack.</p>
+        <p><strong>Example:</strong> HTTP → TLS → TCP → IP → Ethernet.</p>
+      </dd>
 
-        <dt><strong>Endpoint</strong></dt>
-        <dd><em>Plain:</em> A service address you connect to. <br>
-            <em>Formal:</em> Tuple of IP + port (and often protocol) identifying a listener. <br>
-            <em>Pitfall:</em> Listening on 127.0.0.1 exposes only localhost. <br>
-            <em>Example:</em> <code>203.0.113.5:443</code>.</dd>
-      </dl>
-    </section>
+      <dt id="ethernet">Ethernet</dt>
+      <dd>
+        <p><strong>Plain:</strong> The common wired LAN technology.</p>
+        <p><strong>Formal:</strong> IEEE 802.3 framing and link-layer access for local networks.</p>
+        <p><strong>Example:</strong> Desktop connected via RJ-45 to a switch.</p>
+      </dd>
+    </dl>
 
     <!-- F -->
-    <section id="F" class="card">
-      <h2>F</h2>
-      <dl>
-        <dt><strong>Frame</strong></dt>
-        <dd><em>Plain:</em> The “packet” at the local link layer. <br>
-            <em>Formal:</em> L2 data unit (Ethernet/Wi-Fi) with MAC addresses, FCS trailer. <br>
-            <em>Pitfall:</em> Don’t confuse with IP packet or TCP segment. <br>
-            <em>Example:</em> Ethernet frame carrying an IP packet.</dd>
-      </dl>
-    </section>
+    <h2 id="F">F</h2>
+    <dl class="glossary">
+      <dt id="firewall">Firewall</dt>
+      <dd>
+        <p><strong>Plain:</strong> A guard that filters traffic.</p>
+        <p><strong>Formal:</strong> Stateful/stateless packet filtering based on headers, state, and policy.</p>
+        <p><strong>Example:</strong> Block inbound TCP 22 from the Internet.</p>
+      </dd>
+
+      <dt id="frame">Frame</dt>
+      <dd>
+        <p><strong>Plain:</strong> The link-layer “envelope.”</p>
+        <p><strong>Formal:</strong> Data link layer PDU containing header (MACs, type), payload, FCS.</p>
+        <p><strong>Example:</strong> Ethernet frame carrying an IP packet.</p>
+      </dd>
+    </dl>
 
     <!-- G -->
-    <section id="G" class="card">
-      <h2>G</h2>
-      <dl>
-        <dt><strong>Gateway</strong></dt>
-        <dd><em>Plain:</em> Exit door from your subnet. <br>
-            <em>Formal:</em> Router interface serving as next hop for non-local destinations. <br>
-            <em>Pitfall:</em> Wrong gateway IP leads to ARP for Internet addresses. <br>
-            <em>Example:</em> Corporate router on <code>10.23.0.1</code>.</dd>
-      </dl>
-    </section>
+    <h2 id="G">G</h2>
+    <dl class="glossary">
+      <dt id="gateway">Gateway</dt>
+      <dd>
+        <p><strong>Plain:</strong> See <a href="#default-gateway">Default gateway</a>.</p>
+        <p><strong>Formal:</strong> Router acting as next hop between subnets.</p>
+        <p><strong>Example:</strong> Home router forwarding to ISP.</p>
+      </dd>
+    </dl>
 
     <!-- H -->
-    <section id="H" class="card">
-      <h2>H</h2>
-      <dl>
-        <dt><strong>HTTP / HTTPS</strong></dt>
-        <dd><em>Plain:</em> Web request/response protocol (secure with TLS). <br>
-            <em>Formal:</em> Application-layer protocol over TCP; HTTPS uses TLS for confidentiality/integrity. <br>
-            <em>Pitfall:</em> SNI/cert mismatch breaks HTTPS while HTTP works. <br>
-            <em>Example:</em> <code>GET /index.html</code> → <code>200 OK</code>.</dd>
-      </dl>
-    </section>
+    <h2 id="H">H</h2>
+    <dl class="glossary">
+      <dt id="handshake">Handshake (TCP three-way)</dt>
+      <dd>
+        <p><strong>Plain:</strong> TCP’s greeting: SYN → SYN-ACK → ACK.</p>
+        <p><strong>Formal:</strong> Connection establishment synchronizing sequence numbers and state.</p>
+        <p><strong>Example:</strong> Wireshark shows SYN to port 443, SYN-ACK back, then ACK.</p>
+      </dd>
+
+      <dt id="http">HTTP / HTTPS</dt>
+      <dd>
+        <p><strong>Plain:</strong> The web’s request/response protocol; HTTPS adds encryption.</p>
+        <p><strong>Formal:</strong> Application protocol (HTTP/1.1, HTTP/2, HTTP/3) with optional TLS for confidentiality and integrity.</p>
+        <p><strong>Example:</strong> <code>GET /index.html</code> → <code>200 OK</code>.</p>
+      </dd>
+    </dl>
 
     <!-- I -->
-    <section id="I" class="card">
-      <h2>I</h2>
-      <dl>
-        <dt><strong>ICMP</strong></dt>
-        <dd><em>Plain:</em> Network diagnostics messages (e.g., ping). <br>
-            <em>Formal:</em> Control protocol for errors and queries (RFC 792/4443). <br>
-            <em>Pitfall:</em> Blocking ICMP breaks PMTUD and visibility. <br>
-            <em>Example:</em> “Time Exceeded” in traceroute.</dd>
+    <h2 id="I">I</h2>
+    <dl class="glossary">
+      <dt id="icmp">ICMP</dt>
+      <dd>
+        <p><strong>Plain:</strong> Network control messages (e.g., ping, errors).</p>
+        <p><strong>Formal:</strong> Internet Control Message Protocol reporting reachability and diagnostics.</p>
+        <p><strong>Example:</strong> “Fragmentation needed” reveals MTU problems.</p>
+      </dd>
 
-        <dt><strong>IP (Internet Protocol)</strong></dt>
-        <dd><em>Plain:</em> The addressing and routing system of the Internet. <br>
-            <em>Formal:</em> Connectionless L3 protocol (IPv4 RFC 791, IPv6 RFC 8200). <br>
-            <em>Pitfall:</em> Overlapping private ranges across VPNs cause routing conflicts. <br>
-            <em>Example:</em> <code>192.0.2.10</code> or <code>2001:db8::10</code>.</dd>
-
-        <dt><strong>IPv6</strong></dt>
-        <dd><em>Plain:</em> Next-gen IP with a huge address space. <br>
-            <em>Formal:</em> 128-bit addressing with SLAAC, NDP; typical LAN <code>/64</code>. <br>
-            <em>Pitfall:</em> Assuming NAT is required; stateful firewalls still recommended. <br>
-            <em>Example:</em> <code>2001:db8::42</code>.</dd>
-      </dl>
-    </section>
+      <dt id="ip">IP (IPv4/IPv6)</dt>
+      <dd>
+        <p><strong>Plain:</strong> Addresses for devices across networks.</p>
+        <p><strong>Formal:</strong> Layer-3 protocol providing addressing and best-effort packet delivery.</p>
+        <p><strong>Example:</strong> <code>192.168.1.5</code>, <code>2001:db8::1</code>.</p>
+      </dd>
+    </dl>
 
     <!-- J -->
-    <section id="J" class="card">
-      <h2>J</h2>
-      <dl>
-        <dt><strong>Jitter</strong></dt>
-        <dd><em>Plain:</em> Variation in latency. <br>
-            <em>Formal:</em> Statistical dispersion of packet delay. <br>
-            <em>Pitfall:</em> Hurts real-time media even when average latency looks fine. <br>
-            <em>Example:</em> Choppy audio on Wi-Fi under congestion.</dd>
-      </dl>
-    </section>
-
-    <!-- K -->
-    <section id="K" class="card">
-      <h2>K</h2>
-      <dl>
-        <dt><strong>Keepalive</strong></dt>
-        <dd><em>Plain:</em> “You still there?” messages. <br>
-            <em>Formal:</em> Periodic probes to detect idle dead peers at transport/app layers. <br>
-            <em>Pitfall:</em> Too infrequent → slow failure detection; too frequent → overhead. <br>
-            <em>Example:</em> TCP keepalives on long-lived API connections.</dd>
-      </dl>
-    </section>
+    <h2 id="J">J</h2>
+    <dl class="glossary">
+      <dt id="jitter">Jitter</dt>
+      <dd>
+        <p><strong>Plain:</strong> Variation in latency.</p>
+        <p><strong>Formal:</strong> Statistical dispersion of packet delay.</p>
+        <p><strong>Example:</strong> Voice calls sound choppy with high jitter.</p>
+      </dd>
+    </dl>
 
     <!-- L -->
-    <section id="L" class="card">
-      <h2>L</h2>
-      <dl>
-        <dt><strong>Latency</strong></dt>
-        <dd><em>Plain:</em> How long a trip takes. <br>
-            <em>Formal:</em> One-way or round-trip delay (propagation + queueing + processing). <br>
-            <em>Pitfall:</em> High latency limits TCP throughput without large windows. <br>
-            <em>Example:</em> ~150–200 ms transoceanic RTT.</dd>
+    <h2 id="L">L</h2>
+    <dl class="glossary">
+      <dt id="lan">LAN</dt>
+      <dd>
+        <p><strong>Plain:</strong> A local network like your home or office.</p>
+        <p><strong>Formal:</strong> Limited-scope broadcast domain interconnected by switches/APs.</p>
+        <p><strong>Example:</strong> Devices on <code>192.168.1.0/24</code> at home.</p>
+      </dd>
 
-        <dt><strong>Longest-Prefix Match</strong></dt>
-        <dd><em>Plain:</em> Most specific route wins. <br>
-            <em>Formal:</em> Routing decision that selects the route with the greatest prefix length matching the destination. <br>
-            <em>Pitfall:</em> Specific stray routes can steal traffic unexpectedly. <br>
-            <em>Example:</em> /24 overrides /16.</dd>
-      </dl>
-    </section>
+      <dt id="latency">Latency</dt>
+      <dd>
+        <p><strong>Plain:</strong> One-way or round-trip delay.</p>
+        <p><strong>Formal:</strong> Time between send and receive events.</p>
+        <p><strong>Example:</strong> 15 ms RTT to a nearby data center.</p>
+      </dd>
+
+      <dt id="lpm">Longest-prefix match</dt>
+      <dd>
+        <p><strong>Plain:</strong> The most specific route wins.</p>
+        <p><strong>Formal:</strong> Routing decision that selects the route with the greatest prefix length that matches the destination.</p>
+        <p><strong>Example:</strong> <code>/24</code> beats <code>/16</code> for <code>10.1.2.3</code>.</p>
+      </dd>
+    </dl>
 
     <!-- M -->
-    <section id="M" class="card">
-      <h2>M</h2>
-      <dl>
-        <dt><strong>MAC Address</strong></dt>
-        <dd><em>Plain:</em> Hardware ID for a network interface on a LAN. <br>
-            <em>Formal:</em> 48-bit (or 64-bit) link-layer identifier used by Ethernet/Wi-Fi. <br>
-            <em>Pitfall:</em> Not routable; changes with NIC swap or virtualization. <br>
-            <em>Example:</em> <code>02:42:ac:11:00:02</code>.</dd>
+    <h2 id="M">M</h2>
+    <dl class="glossary">
+      <dt id="mac">MAC address</dt>
+      <dd>
+        <p><strong>Plain:</strong> Hardware address used on a LAN.</p>
+        <p><strong>Formal:</strong> Link-layer identifier (48-bit EUI-48) used for frame delivery.</p>
+        <p><strong>Example:</strong> <code>00:1A:2B:3C:4D:5E</code>.</p>
+      </dd>
 
-        <dt><strong>MTU</strong></dt>
-        <dd><em>Plain:</em> Biggest payload a link will carry at once. <br>
-            <em>Formal:</em> Maximum L3 payload before fragmentation per L2 frame. <br>
-            <em>Pitfall:</em> Tunnels reduce MTU; blocking ICMP breaks PMTUD. <br>
-            <em>Example:</em> Ethernet MTU 1500 (Jumbo ~9000).</dd>
-      </dl>
-    </section>
+      <dt id="mss">MSS</dt>
+      <dd>
+        <p><strong>Plain:</strong> Largest TCP payload per segment.</p>
+        <p><strong>Formal:</strong> Maximum Segment Size advertised during TCP handshake.</p>
+        <p><strong>Example:</strong> MSS 1460 with MTU 1500 on Ethernet.</p>
+      </dd>
+
+      <dt id="mtu">MTU</dt>
+      <dd>
+        <p><strong>Plain:</strong> Largest packet a link can carry.</p>
+        <p><strong>Formal:</strong> Maximum Transmission Unit measured in bytes for a given link.</p>
+        <p><strong>Example:</strong> 1500 on Ethernet; often 1400–1460 on tunnels/VPNs.</p>
+      </dd>
+    </dl>
 
     <!-- N -->
-    <section id="N" class="card">
-      <h2>N</h2>
-      <dl>
-        <dt><strong>NAT</strong></dt>
-        <dd><em>Plain:</em> Many private hosts share one public IP. <br>
-            <em>Formal:</em> Address/port translation at a boundary device maintaining state. <br>
-            <em>Pitfall:</em> Breaks end-to-end, complicates P2P and inbound testing. <br>
-            <em>Example:</em> Home router NATs 192.168.1.0/24 to ISP IP.</dd>
+    <h2 id="N">N</h2>
+    <dl class="glossary">
+      <dt id="nat">NAT</dt>
+      <dd>
+        <p><strong>Plain:</strong> Many private hosts share a public IP.</p>
+        <p><strong>Formal:</strong> Network Address Translation rewrites addresses/ports at boundaries.</p>
+        <p><strong>Example:</strong> Home devices appear as one IP on the Internet.</p>
+      </dd>
 
-        <dt><strong>NDP</strong> (Neighbor Discovery)</dt>
-        <dd><em>Plain:</em> IPv6’s ARP + extras. <br>
-            <em>Formal:</em> ICMPv6-based discovery for neighbors, routers, prefixes. <br>
-            <em>Pitfall:</em> RA guard needed in shared networks to prevent rogue RAs. <br>
-            <em>Example:</em> SLAAC uses NDP to form IPv6 addresses.</dd>
-      </dl>
-    </section>
+      <dt id="nd">Neighbor Discovery</dt>
+      <dd>
+        <p><strong>Plain:</strong> IPv6’s ARP.</p>
+        <p><strong>Formal:</strong> ICMPv6 messages for address resolution and router discovery.</p>
+        <p><strong>Example:</strong> “Who has <code>fe80::1</code>?” via multicast.</p>
+      </dd>
+
+      <dt id="ns">NS record</dt>
+      <dd>
+        <p><strong>Plain:</strong> Tells which servers are authoritative for a zone.</p>
+        <p><strong>Formal:</strong> Delegation records indicating the name servers for a domain.</p>
+        <p><strong>Example:</strong> <code>example.com NS ns1.provider.net</code>.</p>
+      </dd>
+    </dl>
 
     <!-- O -->
-    <section id="O" class="card">
-      <h2>O</h2>
-      <dl>
-        <dt><strong>OSPF</strong></dt>
-        <dd><em>Plain:</em> Interior routing protocol for large campuses/datacenters. <br>
-            <em>Formal:</em> Link-state IGP computing shortest paths with Dijkstra. <br>
-            <em>Pitfall:</em> Area design & LSA floods can get complex. <br>
-            <em>Example:</em> Multi-router labs often use OSPF to share routes.</dd>
-      </dl>
-    </section>
+    <h2 id="O">O</h2>
+    <dl class="glossary">
+      <dt id="ocsp">OCSP</dt>
+      <dd>
+        <p><strong>Plain:</strong> Online check that a TLS certificate is still valid.</p>
+        <p><strong>Formal:</strong> Online Certificate Status Protocol for revocation status; often stapled by servers.</p>
+        <p><strong>Example:</strong> <code>curl --cert-status https://site</code> verifies stapled OCSP.</p>
+      </dd>
+    </dl>
 
     <!-- P -->
-    <section id="P" class="card">
-      <h2>P</h2>
-      <dl>
-        <dt><strong>Packet</strong></dt>
-        <dd><em>Plain:</em> A chunk of data at the Internet layer. <br>
-            <em>Formal:</em> L3 unit containing IP header + payload. <br>
-            <em>Pitfall:</em> Don’t call link-layer frames “packets” in Wi-Fi/Ethernet context. <br>
-            <em>Example:</em> IP packet carrying a TCP segment.</dd>
+    <h2 id="P">P</h2>
+    <dl class="glossary">
+      <dt id="packet">Packet</dt>
+      <dd>
+        <p><strong>Plain:</strong> The network-layer “envelope.”</p>
+        <p><strong>Formal:</strong> Layer-3 PDU (e.g., IP header + payload).</p>
+        <p><strong>Example:</strong> IP packet carrying a TCP segment.</p>
+      </dd>
 
-        <dt><strong>PMTUD</strong></dt>
-        <dd><em>Plain:</em> Learning the biggest safe packet size along a path. <br>
-            <em>Formal:</em> Path MTU Discovery using ICMP “Fragmentation Needed” (v4) or PTB (v6). <br>
-            <em>Pitfall:</em> ICMP filtering breaks PMTUD → mysterious timeouts. <br>
-            <em>Example:</em> VPN + DF bit set requires PMTUD or MSS clamping.</dd>
+      <dt id="pmtd">PMTUD</dt>
+      <dd>
+        <p><strong>Plain:</strong> Discovering the biggest packet size that fits along the path.</p>
+        <p><strong>Formal:</strong> Path MTU Discovery via ICMP feedback or PLPMTUD probing.</p>
+        <p><strong>Example:</strong> Large uploads fail until MTU/MSS adjusted.</p>
+      </dd>
 
-        <dt><strong>Port</strong></dt>
-        <dd><em>Plain:</em> Door number on a host for a service. <br>
-            <em>Formal:</em> 16-bit transport identifier (TCP/UDP). <br>
-            <em>Pitfall:</em> Binding to 127.0.0.1 hides the service from the network. <br>
-            <em>Example:</em> HTTPS on TCP 443.</dd>
+      <dt id="port">Port</dt>
+      <dd>
+        <p><strong>Plain:</strong> A numbered slot on a host that apps use.</p>
+        <p><strong>Formal:</strong> 16-bit transport endpoint identifier for TCP/UDP.</p>
+        <p><strong>Example:</strong> HTTPS listens on TCP 443.</p>
+      </dd>
 
-        <dt><strong>Presentation Layer</strong></dt>
-        <dd><em>Plain:</em> OSI concept for data formats/crypto. <br>
-            <em>Formal:</em> Layer 6; in practice, TLS/serialization at app layer. <br>
-            <em>Pitfall:</em> Over-fitting OSI strictly to modern stacks. <br>
-            <em>Example:</em> JSON encoding, TLS ciphers.</dd>
-      </dl>
-    </section>
+      <dt id="presentation">Presentation layer</dt>
+      <dd>
+        <p><strong>Plain:</strong> Where format/security live in OSI (often part of apps in practice).</p>
+        <p><strong>Formal:</strong> OSI Layer 6: data representation and security (e.g., TLS, compression).</p>
+        <p><strong>Example:</strong> TLS encrypts HTTP before transport.</p>
+      </dd>
+
+      <dt id="proxy">Proxy</dt>
+      <dd>
+        <p><strong>Plain:</strong> A middlebox that makes requests on your behalf.</p>
+        <p><strong>Formal:</strong> Application-layer intermediary that relays and possibly transforms requests/responses.</p>
+        <p><strong>Example:</strong> Corporate HTTP proxy resolving hostnames internally.</p>
+      </dd>
+    </dl>
 
     <!-- Q -->
-    <section id="Q" class="card">
-      <h2>Q</h2>
-      <dl>
-        <dt><strong>QoS</strong> (Quality of Service)</dt>
-        <dd><em>Plain:</em> Prioritizing some traffic over others. <br>
-            <em>Formal:</em> Traffic classification/queuing (DSCP/802.1p) to manage latency/loss. <br>
-            <em>Pitfall:</em> Misclassification can starve critical flows. <br>
-            <em>Example:</em> Marking VoIP packets for low latency.</dd>
-      </dl>
-    </section>
+    <h2 id="Q">Q</h2>
+    <dl class="glossary">
+      <dt id="quic">QUIC</dt>
+      <dd>
+        <p><strong>Plain:</strong> Modern transport running over UDP with TLS built-in.</p>
+        <p><strong>Formal:</strong> IETF transport providing streams, congestion control, and security atop UDP; base for HTTP/3.</p>
+        <p><strong>Example:</strong> Many browsers speak HTTP/3 over QUIC to CDNs.</p>
+      </dd>
+    </dl>
 
     <!-- R -->
-    <section id="R" class="card">
-      <h2>R</h2>
-      <dl>
-        <dt><strong>RFC</strong></dt>
-        <dd><em>Plain:</em> Internet standards documents. <br>
-            <em>Formal:</em> “Request for Comments” series defining protocols/behaviors. <br>
-            <em>Pitfall:</em> Some RFCs are informational, not standards—check status. <br>
-            <em>Example:</em> RFC 791 (IPv4), RFC 8200 (IPv6).</dd>
+    <h2 id="R">R</h2>
+    <dl class="glossary">
+      <dt id="resolver">Resolver (DNS)</dt>
+      <dd>
+        <p><strong>Plain:</strong> The DNS helper your device asks first.</p>
+        <p><strong>Formal:</strong> Stub → recursive resolver chain that iteratively obtains answers from authoritative servers.</p>
+        <p><strong>Example:</strong> <code>1.1.1.1</code>, <code>8.8.8.8</code>, or a corporate resolver.</p>
+      </dd>
 
-        <dt><strong>Router</strong></dt>
-        <dd><em>Plain:</em> Device that forwards packets between networks. <br>
-            <em>Formal:</em> L3 system performing forwarding via routing tables. <br>
-            <em>Pitfall:</em> Default-only routing hides asymmetry issues. <br>
-            <em>Example:</em> Home router connecting LAN to ISP.</dd>
+      <dt id="route">Route / Routing table</dt>
+      <dd>
+        <p><strong>Plain:</strong> Rules that tell packets where to go next.</p>
+        <p><strong>Formal:</strong> Prefix → next-hop mappings used by forwarding engines; selected via longest-prefix match.</p>
+        <p><strong>Example:</strong> <code>10.0.0.0/16 via 10.0.1.1</code> in <code>ip route</code>.</p>
+      </dd>
 
-        <dt><strong>Routing Table</strong></dt>
-        <dd><em>Plain:</em> Map from prefixes to next hops. <br>
-            <em>Formal:</em> FIB/RIB entries used for forwarding decisions. <br>
-            <em>Pitfall:</em> Overlapping routes require longest-prefix match understanding. <br>
-            <em>Example:</em> <code>0.0.0.0/0 via 192.168.1.1</code>.</dd>
-      </dl>
-    </section>
+      <dt id="rst">RST (TCP reset)</dt>
+      <dd>
+        <p><strong>Plain:</strong> Abrupt connection close.</p>
+        <p><strong>Formal:</strong> TCP segment with RST flag to terminate a connection immediately.</p>
+        <p><strong>Example:</strong> A proxy sends RST on invalid headers.</p>
+      </dd>
+
+      <dt id="rtt">RTT</dt>
+      <dd>
+        <p><strong>Plain:</strong> Round-trip time—there and back latency.</p>
+        <p><strong>Formal:</strong> Time between sending a probe and receiving its reply.</p>
+        <p><strong>Example:</strong> <code>ping</code> shows 32 ms RTT.</p>
+      </dd>
+    </dl>
 
     <!-- S -->
-    <section id="S" class="card">
-      <h2>S</h2>
-      <dl>
-        <dt><strong>Segment (TCP)</strong></dt>
-        <dd><em>Plain:</em> TCP’s chunk of a byte stream. <br>
-            <em>Formal:</em> L4 unit with ports, seq/ack numbers, flags. <br>
-            <em>Pitfall:</em> Not the same as UDP datagram. <br>
-            <em>Example:</em> SYN segment starting a connection.</dd>
+    <h2 id="S">S</h2>
+    <dl class="glossary">
+      <dt id="sni">SNI</dt>
+      <dd>
+        <p><strong>Plain:</strong> TLS tells the server which hostname you want.</p>
+        <p><strong>Formal:</strong> Server Name Indication TLS extension enabling virtual hosting.</p>
+        <p><strong>Example:</strong> <code>openssl s_client -servername host</code>.</p>
+      </dd>
 
-        <dt><strong>SLAAC</strong></dt>
-        <dd><em>Plain:</em> IPv6 auto-addressing. <br>
-            <em>Formal:</em> Stateless autoconfig using Router Advertisements. <br>
-            <em>Pitfall:</em> Privacy extensions change interface IDs; logging needs care. <br>
-            <em>Example:</em> Host forms <code>2001:db8:1::abcd</code> automatically.</dd>
+      <dt id="slaac">SLAAC</dt>
+      <dd>
+        <p><strong>Plain:</strong> IPv6 auto-addressing without a DHCP server.</p>
+        <p><strong>Formal:</strong> Stateless Address Autoconfiguration using Router Advertisements.</p>
+        <p><strong>Example:</strong> Host forms <code>2001:db8:…</code> from prefix + interface ID.</p>
+      </dd>
 
-        <dt><strong>SNI</strong></dt>
-        <dd><em>Plain:</em> Tells TLS which hostname you want. <br>
-            <em>Formal:</em> ClientHello extension selecting virtual host certificate. <br>
-            <em>Pitfall:</em> Mismatch causes cert/name errors. <br>
-            <em>Example:</em> <code>curl -v https://api.example.com</code> shows SNI in handshake.</dd>
+      <dt id="socket">Socket</dt>
+      <dd>
+        <p><strong>Plain:</strong> A program’s network endpoint (IP + port).</p>
+        <p><strong>Formal:</strong> Tuple identifying a transport endpoint; often (proto, local IP:port, remote IP:port).</p>
+        <p><strong>Example:</strong> Server listens on <code>0.0.0.0:8080</code>.</p>
+      </dd>
 
-        <dt><strong>Subnet</strong></dt>
-        <dd><em>Plain:</em> A slice of an IP network. <br>
-            <em>Formal:</em> Address block defined by a prefix (e.g., /24). <br>
-            <em>Pitfall:</em> Wrong mask groups the wrong hosts together. <br>
-            <em>Example:</em> <code>10.40.12.0/24</code>.</dd>
+      <dt id="ssid">SSID</dt>
+      <dd>
+        <p><strong>Plain:</strong> Wi-Fi network name.</p>
+        <p><strong>Formal:</strong> Service Set Identifier broadcast by access points for 802.11 networks.</p>
+        <p><strong>Example:</strong> “Office-WiFi-5G”.</p>
+      </dd>
 
-        <dt><strong>Switch</strong></dt>
-        <dd><em>Plain:</em> Smart Ethernet hub. <br>
-            <em>Formal:</em> L2 device forwarding frames based on MAC tables. <br>
-            <em>Pitfall:</em> Loops without STP cause broadcast storms. <br>
-            <em>Example:</em> Access switch with PoE for APs.</dd>
-      </dl>
-    </section>
+      <dt id="subnet">Subnet</dt>
+      <dd>
+        <p><strong>Plain:</strong> A slice of a larger network.</p>
+        <p><strong>Formal:</strong> Address block defined by a prefix length; hosts share on-link reachability.</p>
+        <p><strong>Example:</strong> <code>10.10.20.0/24</code>.</p>
+      </dd>
+
+      <dt id="switch">Switch</dt>
+      <dd>
+        <p><strong>Plain:</strong> A device that connects Ethernet hosts on a LAN.</p>
+        <p><strong>Formal:</strong> Layer-2 bridge forwarding frames based on MAC learning.</p>
+        <p><strong>Example:</strong> 24-port switch in a rack.</p>
+      </dd>
+    </dl>
 
     <!-- T -->
-    <section id="T" class="card">
-      <h2>T</h2>
-      <dl>
-        <dt><strong>TCP</strong></dt>
-        <dd><em>Plain:</em> Reliable, ordered delivery. <br>
-            <em>Formal:</em> Connection-oriented transport with congestion/flow control. <br>
-            <em>Pitfall:</em> Small windows + high RTT = poor throughput. <br>
-            <em>Example:</em> APIs and web browsing.</dd>
+    <h2 id="T">T</h2>
+    <dl class="glossary">
+      <dt id="tcp">TCP</dt>
+      <dd>
+        <p><strong>Plain:</strong> Reliable, ordered, connection-oriented transport.</p>
+        <p><strong>Formal:</strong> Transmission Control Protocol with sequencing, ACKs, flow and congestion control.</p>
+        <p><strong>Example:</strong> HTTP/1.1 and HTTP/2 commonly run over TCP.</p>
+      </dd>
 
-        <dt><strong>Throughput</strong></dt>
-        <dd><em>Plain:</em> How much data you actually move per second. <br>
-            <em>Formal:</em> Achieved application data rate over time. <br>
-            <em>Pitfall:</em> Often limited by latency/loss, not link rate. <br>
-            <em>Example:</em> 800 Mbps file copy across regions.</dd>
+      <dt id="tls">TLS</dt>
+      <dd>
+        <p><strong>Plain:</strong> Encryption and authentication for application data.</p>
+        <p><strong>Formal:</strong> Transport Layer Security providing confidentiality, integrity, and endpoint auth.</p>
+        <p><strong>Example:</strong> HTTPS = HTTP + TLS.</p>
+      </dd>
 
-        <dt><strong>TLS</strong></dt>
-        <dd><em>Plain:</em> Encryption for network traffic. <br>
-            <em>Formal:</em> Record/handshake protocol providing confidentiality, integrity, authentication. <br>
-            <em>Pitfall:</em> Expired or wrong-name certs cause outages. <br>
-            <em>Example:</em> HTTPS on port 443.</dd>
+      <dt id="traceroute">Traceroute</dt>
+      <dd>
+        <p><strong>Plain:</strong> Shows the hops your packets take.</p>
+        <p><strong>Formal:</strong> TTL-limited probes elicit hop-by-hop ICMP responses to reveal path.</p>
+        <p><strong>Example:</strong> Diagnose which hop drops traffic.</p>
+      </dd>
 
-        <dt><strong>Traceroute</strong></dt>
-        <dd><em>Plain:</em> Shows the hops your packets take. <br>
-            <em>Formal:</em> TTL-based probing to elicit ICMP Time Exceeded from routers. <br>
-            <em>Pitfall:</em> Non-responding hops don’t always mean a break. <br>
-            <em>Example:</em> Identifying where latency spikes start.</dd>
-      </dl>
-    </section>
+      <dt id="throughput">Throughput</dt>
+      <dd>
+        <p><strong>Plain:</strong> Actual data you move per second.</p>
+        <p><strong>Formal:</strong> Realized application data rate accounting for overhead, loss, and protocol behavior.</p>
+        <p><strong>Example:</strong> 600 Mbps file transfer over a 1 Gbps link.</p>
+      </dd>
+
+      <dt id="ttl">TTL</dt>
+      <dd>
+        <p><strong>Plain:</strong> “How long this should live.” Used in DNS and IP.</p>
+        <p><strong>Formal:</strong> Time To Live: hop limit in IP; cache lifetime in DNS.</p>
+        <p><strong>Example:</strong> DNS TTL 300s; IP TTL starts at 64 and decrements per hop.</p>
+      </dd>
+    </dl>
 
     <!-- U -->
-    <section id="U" class="card">
-      <h2>U</h2>
-      <dl>
-        <dt><strong>UDP</strong></dt>
-        <dd><em>Plain:</em> Fire-and-forget messages. <br>
-            <em>Formal:</em> Connectionless transport; no retransmission/ordering. <br>
-            <em>Pitfall:</em> App must handle loss/out-of-order if needed. <br>
-            <em>Example:</em> DNS queries, real-time media.</dd>
-      </dl>
-    </section>
+    <h2 id="U">U</h2>
+    <dl class="glossary">
+      <dt id="udp">UDP</dt>
+      <dd>
+        <p><strong>Plain:</strong> Lightweight, no-frills transport—fast but no guarantees.</p>
+        <p><strong>Formal:</strong> User Datagram Protocol providing connectionless datagrams with minimal header overhead.</p>
+        <p><strong>Example:</strong> DNS queries, voice/video, QUIC base.</p>
+      </dd>
+
+      <dt id="ula">ULA</dt>
+      <dd>
+        <p><strong>Plain:</strong> IPv6’s private-like space.</p>
+        <p><strong>Formal:</strong> Unique Local Addresses (<code>fd00::/8</code>) not routed on the public Internet.</p>
+        <p><strong>Example:</strong> Lab services on <code>fd12:3456::/48</code>.</p>
+      </dd>
+    </dl>
 
     <!-- V -->
-    <section id="V" class="card">
-      <h2>V</h2>
-      <dl>
-        <dt><strong>VLAN</strong></dt>
-        <dd><em>Plain:</em> Virtual “separate hallway” on the same switch. <br>
-            <em>Formal:</em> 802.1Q tagging to create isolated L2 broadcast domains. <br>
-            <em>Pitfall:</em> Trunk/access mismatches strand hosts. <br>
-            <em>Example:</em> Servers in VLAN 20, printers in VLAN 30.</dd>
+    <h2 id="V">V</h2>
+    <dl class="glossary">
+      <dt id="vlan">VLAN</dt>
+      <dd>
+        <p><strong>Plain:</strong> Logical separation on one physical network.</p>
+        <p><strong>Formal:</strong> IEEE 802.1Q tagging isolates broadcast domains on shared links.</p>
+        <p><strong>Example:</strong> Prod and staging on different VLANs over the same switch.</p>
+      </dd>
 
-        <dt><strong>VPN</strong></dt>
-        <dd><em>Plain:</em> Encrypted tunnel between networks/hosts. <br>
-            <em>Formal:</em> Overlay encapsulation + crypto (e.g., IPsec, WireGuard). <br>
-            <em>Pitfall:</em> MTU shrink, split-tunnel asymmetry. <br>
-            <em>Example:</em> Laptop to corporate network.</dd>
-      </dl>
-    </section>
+      <dt id="vpn">VPN</dt>
+      <dd>
+        <p><strong>Plain:</strong> Encrypted tunnel between networks or devices.</p>
+        <p><strong>Formal:</strong> Virtual Private Network encapsulating traffic with crypto between endpoints.</p>
+        <p><strong>Example:</strong> Corporate split-tunnel VPN adds routes for <code>10.0.0.0/8</code>.</p>
+      </dd>
+    </dl>
 
     <!-- W -->
-    <section id="W" class="card">
-      <h2>W</h2>
-      <dl>
-        <dt><strong>Wi-Fi</strong></dt>
-        <dd><em>Plain:</em> Wireless Ethernet. <br>
-            <em>Formal:</em> IEEE 802.11 family of PHY/MAC standards. <br>
-            <em>Pitfall:</em> Interference and retransmissions reduce throughput. <br>
-            <em>Example:</em> 5 GHz channels for less congestion.</dd>
-      </dl>
+    <h2 id="W">W</h2>
+    <dl class="glossary">
+      <dt id="wireshark">Wireshark</dt>
+      <dd>
+        <p><strong>Plain:</strong> GUI tool to see packets.</p>
+        <p><strong>Formal:</strong> Protocol analyzer that decodes and filters captured traffic.</p>
+        <p><strong>Example:</strong> Filter by <code>tcp.port==443</code> to inspect TLS handshakes.</p>
+      </dd>
+
+      <dt id="wifi">Wi-Fi</dt>
+      <dd>
+        <p><strong>Plain:</strong> Wireless LAN technology.</p>
+        <p><strong>Formal:</strong> IEEE 802.11 family using shared radio spectrum and CSMA/CA access.</p>
+        <p><strong>Example:</strong> Client roams between access points under one SSID.</p>
+      </dd>
+    </dl>
+
+    <section class="section">
+      <div class="callout info">
+        <strong>Tip:</strong> See <a href="chapters/ch03.html#mapping">Ch.3 Mapping Between Models</a> and <a href="chapters/ch06.html#workflow">Ch.6 Debugging Workflow</a> for how these terms interact in real incidents.
+      </div>
     </section>
 
-    <div class="next-prev">
-      <a href="chapters/appendix.html" rel="prev">← Previous: Appendix</a>
-      <span></span>
-    </div>
+    <nav class="next-prev">
+      <a href="chapters/appendix.html" rel="prev">← Previous: Appendix — Review, Pitfalls &amp; Progression</a>
+      <!-- Glossary is last page: no next link -->
+    </nav>
   </main>
 
   <footer class="site-footer">
-    © Networking for Software Engineers (Beginner). Glossary prepared for quick lookups.
+    <div class="container">
+      <p class="muted">© 2025 BookBuilder Project.</p>
+    </div>
   </footer>
 
-  <!-- CHECKLIST
-    - [x] theme.css+app.js loaded
-    - [x] <base> present & correct ("../")
-    - [x] Canonical nav verbatim; active link on Glossary
-    - [x] Pager: only prev (Glossary is last)
-    - [x] Alphabetical list with Plain → Formal → Pitfall → Example
-    - [x] Terms align with book usage (ARP, NAT, MTU, TCP/UDP, DNS, TLS, etc.)
-    - [x] No TODOs
+  <!--
+  CHECKLIST
+  - [x] /styles/theme.css + /scripts/app.js linked (paths correct for glossary page)
+  - [x] <base> present & correct (../)
+  - [x] Canonical nav verbatim; active link set to "Glossary"
+  - [x] Pager has only prev (appendix → glossary is last)
+  - [x] Alphabetical list with Plain + Formal + Example per term
+  - [x] Internal cross-links back to chapters where useful
   -->
 </body>
 </html>

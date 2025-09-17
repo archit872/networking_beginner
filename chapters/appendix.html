@@ -1,111 +1,261 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Appendix — Pitfalls, Checklist & Progression</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Appendix: consolidated pitfalls, top 10 checklist for debugging, and progression map from beginner to intermediate networking." />
+  <meta charset="utf-8">
   <base href="../">
-  <link rel="stylesheet" href="styles/theme.css" />
-  <script defer src="scripts/app.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Appendix — Review, Pitfalls & Progression</title>
+  <meta name="description" content="Condensed review of the book, a printable pitfall checklist, and a staged progression map from beginner to intermediate networking for software engineers.">
+  <meta property="og:title" content="Appendix — Review, Pitfalls & Progression">
+  <meta property="og:description" content="Quick-reference checklists, top pitfalls with fixes, and a learner’s roadmap.">
+  <meta property="og:type" content="article">
+  <meta name="theme-color" content="#0b0f14">
+
+  <link rel="stylesheet" href="styles/theme.css">
+  <script src="scripts/app.js" defer></script>
 </head>
 <body>
-  <!-- Canonical Nav -->
-  <nav class="app-nav" data-open="false">
-    <div class="wrap">
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- Canonical Nav (verbatim across all pages). Only aria-current differs per page. -->
+  <nav class="app-nav" aria-label="Primary">
+    <div class="container inner">
       <div class="brand">Networking for Software Engineers</div>
-      <button class="nav-toggle" aria-expanded="false" aria-controls="app-menu">Menu</button>
-      <div id="app-menu" class="menu toc-scroller" role="navigation" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a href="chapters/ch01.html">Chapters</a>
-        <a href="chapters/appendix.html" aria-current="page">Appendix</a>
-        <a href="chapters/glossary.html">Glossary</a>
+      <button class="toggle js-nav-toggle" aria-expanded="false" aria-controls="top-menu" aria-label="Toggle navigation">
+        ☰ Menu
+      </button>
+      <div id="top-menu" class="menu" role="menubar">
+        <a href="index.html" role="menuitem">Home</a>
+        <a href="chapters/ch01.html" role="menuitem">Chapters</a>
+        <a href="chapters/appendix.html" aria-current="page" role="menuitem">Appendix</a>
+        <a href="chapters/glossary.html" role="menuitem">Glossary</a>
       </div>
     </div>
   </nav>
 
-  <main class="container">
-    <header class="page-hero">
-      <span class="badge">Appendix</span>
-      <h1>Pitfalls, Checklist &amp; Progression</h1>
-      <p class="muted">Quick reference for common mistakes, a structured debugging checklist, and how to progress from beginner to intermediate networking.</p>
-    </header>
+  <header class="page-hero">
+    <div class="container">
+      <div class="meta">
+        <span class="badge">Reference</span>
+      </div>
+      <h1>Appendix — Review, Pitfalls &amp; Progression</h1>
+      <p class="abstract">
+        Use this appendix as your quick reference. It distills the core ideas from each chapter into checklists, calls out the top pitfalls we’ve seen beginners hit (with concrete fixes), and gives you a staged plan to progress from beginner to intermediate networking.
+      </p>
+    </div>
+  </header>
 
-    <section>
-      <h2>Top 10 Pitfalls to Avoid</h2>
-      <ol>
-        <li>Confusing <strong>IP</strong> and <strong>MAC</strong> addresses.</li>
-        <li>Omitting the <strong>default gateway</strong> for off-subnet traffic.</li>
-        <li>Over-relying on <strong>ping</strong> as proof of application health.</li>
-        <li>Misconfigured or stale <strong>DNS</strong> records.</li>
-        <li><strong>NAT</strong> conflicts between overlapping private networks.</li>
-        <li>Ignoring <strong>MTU</strong> issues and blocked <strong>ICMP</strong> for PMTUD.</li>
-        <li>Assuming firewall rules are permissive when they’re restrictive.</li>
-        <li>Binding services to <code>127.0.0.1</code> instead of <code>0.0.0.0</code>.</li>
-        <li>Skipping documentation of subnets, routes, and port usage.</li>
-        <li>Hardcoding fixes (<code>/etc/hosts</code>, “allow all” rules) instead of addressing root causes.</li>
-      </ol>
+  <main id="main" class="container section">
+    <!-- Quick Review -->
+    <section class="section">
+      <h2 id="review">A. Rapid Review of Each Chapter</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>Ch1 — Introduction</h3>
+          <ul>
+            <li>Networking ≈ postal system for computers: addresses, routes, envelopes (<em>headers</em>), delivery guarantees.</li>
+            <li>Key terms: <abbr title="A formatted unit of data carried by a network">packet</abbr>, <abbr title="Set of rules for communication">protocol</abbr>, <abbr title="Delay experienced by data">latency</abbr>, <abbr title="Capacity per unit time">bandwidth</abbr>.</li>
+            <li>Dev angle: flaky tests often trace back to DNS, routing, or gateways—not code.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Ch2 — Core Concepts</h3>
+          <ul>
+            <li>Bits → signals (encoding) → frames → packets.</li>
+            <li>Ethernet &amp; Wi-Fi deliver the first hop; watch MTU and wireless variability.</li>
+            <li>Encapsulation = nested envelopes; decapsulation on receive.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Ch3 — OSI &amp; TCP/IP</h3>
+          <ul>
+            <li>Use TCP/IP for design; OSI for precise debugging vocabulary.</li>
+            <li>Map: Link↔(L1–2), Internet↔(L3), Transport↔(L4), Application↔(L5–7).</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Ch4 — IP &amp; Routing</h3>
+          <ul>
+            <li>CIDR math and usable host ranges; private ranges &amp; NAT.</li>
+            <li>Routing uses <strong>longest-prefix match</strong>; default gateway handles “everything else.”</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Ch5 — Transport &amp; Apps</h3>
+          <ul>
+            <li>TCP (reliability, ordering) vs UDP (low overhead).</li>
+            <li>HTTP, DNS, SMTP/IMAP/POP3 fundamentals.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Ch6 — Tools &amp; Workflows</h3>
+          <ul>
+            <li>Six-step workflow: Link → DNS → Reachability → Ports → TLS/HTTP → Packets.</li>
+            <li>Core tools: ping/traceroute, dig/nslookup, curl, ss/lsof, tcpdump/Wireshark.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Ch7 — Guided Project</h3>
+          <ul>
+            <li>Three-node lab with router, client, server; local DNS and web.</li>
+            <li>Break/fix scenarios for gateways, DNS, MTU, TLS.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Ch8 — Pitfalls &amp; Next Steps</h3>
+          <ul>
+            <li>Common mistakes: IP vs MAC, wrong gateway, DNS split-horizon, MTU black holes.</li>
+            <li>Adopt docs, security defaults, and config-as-code.</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
-    <section class="card">
-      <h2>The Golden Debug Checklist</h2>
-      <p>Use this “golden path” when diagnosing networking problems:</p>
-      <ol>
-        <li><strong>Link:</strong> Is the interface up? Correct VLAN or Wi-Fi?</li>
-        <li><strong>IP:</strong> Correct address, mask, and gateway configured?</li>
-        <li><strong>DNS:</strong> Does name resolution return expected IPs?</li>
-        <li><strong>Routing:</strong> Does traceroute reveal path to destination?</li>
-        <li><strong>Transport:</strong> Can TCP handshake complete (SYN, SYN-ACK)?</li>
-        <li><strong>TLS:</strong> Certificates valid, SNI matches, no protocol mismatch?</li>
-        <li><strong>Application:</strong> HTTP/DNS/SMTP response as expected?</li>
-      </ol>
-      <div class="callout success"><strong>Tip:</strong> At each layer, use at least one tool (ping, nslookup, curl, Wireshark) to gather evidence before moving on.</div>
-    </section>
+    <!-- Print-friendly Checklist -->
+    <section class="section">
+      <h2 id="checklist">B. Print-Friendly Incident Checklist</h2>
+      <p class="muted">Use this on incidents or when a request “feels slow.” Keep it near your keyboard.</p>
 
-    <section>
-      <h2>Progression Map</h2>
-      <p>Where to go after completing this beginner curriculum:</p>
-      <ul>
-        <li><strong>Beginner End Goal:</strong> Vocabulary, OSI/TCP-IP models, IP basics, diagnostic tools, build/debug small networks.</li>
-        <li><strong>Intermediate Entry Point:</strong> Practical competence in patterns (NAT, VPN, routing protocols), cloud VPC design, TLS in depth, observability tooling.</li>
-        <li><strong>Advanced Path:</strong> Internet-scale routing (BGP, anycast), optimization (QUIC, HTTP/3), advanced network security, and research-grade architectures.</li>
-      </ul>
       <figure>
-        <img src="assets/figA-progression.svg" alt="Diagram showing beginner → intermediate → advanced progression in networking" />
-        <figcaption>Progression from foundational concepts to advanced, cloud-scale networking.</figcaption>
+        <img src="../assets/appendix-incident-checklist.svg" alt="One-page checklist: Link up? DNS ok? Reachability to IP? Correct route and gateway? Port open? TLS OK? Capture packets if unclear.">
+        <figcaption>
+          One-page incident checklist. Start at the top and work down until you isolate the first failing layer; fix there and retest upward.
+        </figcaption>
+      </figure>
+
+      <ol class="dense">
+        <li><strong>Link:</strong> Interface up? RX/TX errors? DHCP or static correct?</li>
+        <li><strong>DNS:</strong> Expected A/AAAA/CNAME? Compare answers (on/off VPN). Note TTL.</li>
+        <li><strong>Reachability:</strong> Ping/traceroute to IP (or TCP connect if ICMP blocked).</li>
+        <li><strong>Routes/Gateway:</strong> <span class="kbd">ip route get</span> shows interface &amp; next hop; default gateway reachable?</li>
+        <li><strong>Ports:</strong> Local listener bound correctly? Remote port open (nc -vz)?</li>
+        <li><strong>TLS/HTTP:</strong> <span class="kbd">curl -vI</span> &amp; <span class="kbd">openssl s_client</span> for cert/SNI; try <span class="kbd">--resolve</span>.</li>
+        <li><strong>Packets:</strong> Targeted capture to verify SYN/SYN-ACK and handshakes.</li>
+      </ol>
+    </section>
+
+    <!-- Top Pitfalls -->
+    <section class="section">
+      <h2 id="pitfalls">C. Top 10 Pitfalls (with Fast Fixes)</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>1) IP vs MAC confusion</h3>
+          <p><em>Fix:</em> Remember: routers use IP, switches use MAC. Use <span class="kbd">ip neigh</span> to map IP↔MAC on-link.</p>
+        </div>
+        <div class="card">
+          <h3>2) Wrong default gateway</h3>
+          <p><em>Fix:</em> Replace: <span class="kbd">ip route replace default via &lt;gw&gt;</span>; verify ARP/ND entry exists.</p>
+        </div>
+        <div class="card">
+          <h3>3) DNS split-horizon surprises</h3>
+          <p><em>Fix:</em> Compare <span class="kbd">dig name @resolver</span> from both sides; pin with <span class="kbd">curl --resolve</span>.</p>
+        </div>
+        <div class="card">
+          <h3>4) MTU black holes</h3>
+          <p><em>Fix:</em> Probe with <span class="kbd">ping -M do -s N</span>; clamp MSS at gateways.</p>
+        </div>
+        <div class="card">
+          <h3>5) Port binding mistakes</h3>
+          <p><em>Fix:</em> Check <span class="kbd">ss -lntp</span>; bind to <code>0.0.0.0</code> if remote access is intended; open firewall.</p>
+        </div>
+        <div class="card">
+          <h3>6) Assuming ping ≈ “site works”</h3>
+          <p><em>Fix:</em> Test the real path: TCP 80/443 with <span class="kbd">curl --connect-timeout</span>.</p>
+        </div>
+        <div class="card">
+          <h3>7) NAT hairpin failure</h3>
+          <p><em>Fix:</em> Return internal IPs to internal clients or enable hairpin NAT on the gateway.</p>
+        </div>
+        <div class="card">
+          <h3>8) IPv6/IPv4 asymmetry</h3>
+          <p><em>Fix:</em> Compare <span class="kbd">dig A</span>/<span class="kbd">AAAA</span>; test <span class="kbd">curl -4</span>/<span class="kbd">-6</span>.</p>
+        </div>
+        <div class="card">
+          <h3>9) Proxy alters DNS/headers</h3>
+          <p><em>Fix:</em> Test with and without proxy; note CONNECT vs direct; inspect <span class="kbd">Via</span>/<span class="kbd">X-Forwarded-*</span>.</p>
+        </div>
+        <div class="card">
+          <h3>10) Misplaced reliability</h3>
+          <p><em>Fix:</em> Don’t hide loss with excessive link-layer retries; handle app-level idempotency &amp; backoff.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Progression Map -->
+    <section class="section">
+      <h2 id="progression">D. Progression Map (Beginner → Intermediate)</h2>
+      <p class="muted">Adapt from the study plan’s roadmap; timeboxes are suggestions.</p>
+      <div class="grid two">
+        <div class="card">
+          <h3>1) Vocabulary &amp; Models (Week 1)</h3>
+          <ul>
+            <li>Flashcards for packet, frame, MTU, ARP/ND, route, gateway, DNS, TCP/UDP.</li>
+            <li>Layer mapping drills (OSI ↔ TCP/IP) with Wireshark captures.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>2) Addressing &amp; Routing (Week 2)</h3>
+          <ul>
+            <li>Daily CIDR problems; carve subnets; predict longest-prefix match.</li>
+            <li>Instrument <span class="kbd">ip route get</span> in your dotfiles for quick checks.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>3) Transport &amp; HTTP/DNS (Weeks 3–4)</h3>
+          <ul>
+            <li>Practice <span class="kbd">curl -vI</span>, <span class="kbd">openssl s_client</span>, <span class="kbd">dig +trace</span>.</li>
+            <li>Compare HTTP/1.1 vs HTTP/2 behavior with a dev server.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>4) Reliability Patterns (Week 5)</h3>
+          <ul>
+            <li>Time-budgeting, timeouts, retries, jitter, backoff; avoid thundering herds.</li>
+            <li>Add synthetic checks from two networks (on/off VPN).</li>
+          </ul>
+        </div>
+      </div>
+
+      <figure>
+        <img src="../assets/progression-ladder.svg" alt="A ladder diagram showing four steps: Vocabulary & Models → Addressing & Routing → Transport & Apps → Reliability Patterns">
+        <figcaption>
+          Progression ladder: build vocabulary, master addressing/routing, get fluent with app protocols, then focus on reliability patterns.
+        </figcaption>
       </figure>
     </section>
 
-    <section>
-      <h2>Review Checklist Before Moving On</h2>
+    <!-- End Matter -->
+    <section class="section">
+      <h2 id="end">E. How to Use This Appendix</h2>
       <ul>
-        <li>Can you explain the difference between <strong>TCP</strong> and <strong>UDP</strong> with real-world examples?</li>
-        <li>Can you configure IP addresses, gateways, and DNS on a small lab network?</li>
-        <li>Can you debug a failed website load with ping, traceroute, nslookup, and curl?</li>
-        <li>Have you captured packets and identified DNS, TCP, and HTTP flows?</li>
-        <li>Do you know common pitfalls (DNS misconfig, NAT overlap, MTU issues) and how to avoid them?</li>
+        <li>Print the incident checklist and pin it near your desk.</li>
+        <li>During on-call, copy the “Six-step workflow” into the ticket and check off each stage.</li>
+        <li>Revisit the progression map monthly; schedule learning sprints as calendar events.</li>
       </ul>
+      <p class="muted">Next: reinforce terms in the <a href="chapters/glossary.html">Glossary</a>.</p>
     </section>
 
-    <div class="next-prev">
-      <a href="chapters/ch08.html" rel="prev">← Previous: Pitfalls, Best Practices & Next Steps</a>
-      <a href="chapters/glossary.html" rel="next">Next: Glossary →</a>
-    </div>
+    <nav class="next-prev">
+      <a href="chapters/ch08.html" rel="prev">Previous: Pitfalls, Best Practices &amp; Next Steps</a>
+      <a href="chapters/glossary.html" rel="next">Next: Glossary</a>
+    </nav>
   </main>
 
   <footer class="site-footer">
-    © Networking for Software Engineers (Beginner).
+    <div class="container">
+      <p class="muted">© 2025 BookBuilder Project.</p>
+    </div>
   </footer>
 
-  <!-- CHECKLIST
-    - [x] theme.css+app.js loaded
-    - [x] <base> correct
-    - [x] Canonical nav verbatim
-    - [x] Pager prev/next valid (ch08 → glossary)
-    - [x] Top 10 pitfalls included
-    - [x] Debug checklist included
-    - [x] Progression map with figure
-    - [x] Review checklist included
+  <!--
+  CHECKLIST
+  - [x] /styles/theme.css + /scripts/app.js linked (paths correct for appendix page)
+  - [x] <base> present & correct (../)
+  - [x] Canonical nav verbatim; active link set to "Appendix"
+  - [x] Pager prev/next valid (ch08 ↔ glossary)
+  - [x] Sections: Review, Print Checklist, Top 10 Pitfalls with fixes, Progression Map, How to Use
+  - [x] ≥1 figure under ../assets/ (appendix-incident-checklist.svg; progression-ladder.svg)
+  - [x] Links use relative paths; glossary link valid
   -->
 </body>
 </html>
